@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecommenderService", "RecommenderService.csproj", "{6201CE3A-F743-4F11-9C75-84E5AF938A4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecommenderService", "RecommenderService.csproj", "{6201CE3A-F743-4F11-9C75-84E5AF938A4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRecommenderService", "..\TestRecommenderService\TestRecommenderService.csproj", "{C268C234-966B-48B2-BFC2-08050F70971F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6201CE3A-F743-4F11-9C75-84E5AF938A4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6201CE3A-F743-4F11-9C75-84E5AF938A4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6201CE3A-F743-4F11-9C75-84E5AF938A4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C268C234-966B-48B2-BFC2-08050F70971F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C268C234-966B-48B2-BFC2-08050F70971F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C268C234-966B-48B2-BFC2-08050F70971F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C268C234-966B-48B2-BFC2-08050F70971F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
