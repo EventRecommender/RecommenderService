@@ -30,13 +30,13 @@ app.MapPut("/RemoveUserInterests", (string User_ID) =>
 	return something;
 });
 
-app.MapPost("/CreateUserInterests", (string User_ID, List<string> initial_types) =>
+app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types) =>
 {
 	//TODO: Do stuff
 	return something;
 });
 
-app.MapPut("/UpdateUserInterests", (string User_ID, List<string> activity_types, UpdateType update_type) =>
+app.MapPut("/UpdateUserInterests", (string User_ID, List<string> activity_types, UpdateType Update_type) =>
 {
 	//TODO: Do stuff
 	return something;

@@ -5,4 +5,11 @@
 		Like,
 		Dislike
 	}
+
+	public enum ErrorStatus
+	{
+		Success,
+		UserNotFound,
+		DublicateUser
+	}
 }
