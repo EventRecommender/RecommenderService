@@ -29,7 +29,7 @@ namespace RecommenderService.Classes
 			//Check if user exist:
 			string SQLstatement = $"SELECT COUNT(*)" +
 										$" FROM interest" +
-										$" WHERE UserID = {user_ID}";
+										$" WHERE userid = {user_ID}";
 			SqlCommand command = new SqlCommand(SQLstatement, connection);
 			SqlDataReader dataReader = command.ExecuteReader();
 
@@ -64,11 +64,13 @@ namespace RecommenderService.Classes
 			//Calculate interests:
 			Dictionary<string, float> interest = GetSimilarInterests(initial_types);
 
+			StringBuilder sb = new StringBuilder("");
+			foreach(KeyValuePair<string, float> kvp in interest)
+			{
+				sb.AppendLine($"INSERT INTO interest (userid, tag, value) values({user_ID}, {kvp.Key}, {kvp.Value})");
+			}
+			SQLstatement = sb.ToString();
 
-
-
-
-			SQLstatement = "";
 			command = new SqlCommand(SQLstatement, connection);
 			SqlDataAdapter adapter = new SqlDataAdapter();
 
@@ -76,6 +78,7 @@ namespace RecommenderService.Classes
 			adapter.InsertCommand.ExecuteNonQuery();
 
 			command.Dispose();
+			adapter.Dispose();
 
 			connection.Close();
 
@@ -99,8 +102,8 @@ namespace RecommenderService.Classes
 			sb.Clear();
 
 			string SQLstatement =	$"SELECT * " +
-									$"FROM Interest " +
-									$"WHERE UserID IN ({similarUsers})";
+									$"FROM interest " +
+									$"WHERE userid IN ({similarUsers})";
 
 			SqlCommand command = new SqlCommand(SQLstatement, connection);
 			SqlDataReader dataReader = command.ExecuteReader();
@@ -139,14 +142,14 @@ namespace RecommenderService.Classes
 			string types = sb.ToString();
 			sb.Clear();
 
-			string SQLstatement = $"SELECT DISTINCT UserID " +
-									$"FROM (SELECT UserID, COUNT(UserID) as count" +
-									$"			FROM Interest" +
-									$"			WHERE TypeID IN ('{types}')" +
-									$"			AND TypeID IN" +
+			string SQLstatement = $"SELECT DISTINCT userid " +
+									$"FROM (SELECT userid, COUNT(userid) as count" +
+									$"			FROM interest" +
+									$"			WHERE tag IN ('{types}')" +
+									$"			AND tag IN" +
 									$"				(SELECT * " +
-									$"						FROM Interest" +
-									$"						WHERE Value BETWEEN {val1} AND {val2})) " +
+									$"						FROM interest" +
+									$"						WHERE value BETWEEN {val1} AND {val2})) " +
 									$"WHERE count = 4"; // "count" is the number of types which are the same as those in initial_types.
 
 
