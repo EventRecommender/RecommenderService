@@ -10,6 +10,7 @@
 	{
 		Success,
 		UserNotFound,
+		UserAlreadyExist,
 		DublicateUser
 	}
 }

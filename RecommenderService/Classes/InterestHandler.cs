@@ -38,7 +38,7 @@ namespace RecommenderService.Classes
 			{
 				var idCount = int.Parse(idCountString);
 
-				if (idCount != 1)
+				if (idCount > 0)
 				{
 					dataReader.Close();
 					command.Dispose();
@@ -47,7 +47,7 @@ namespace RecommenderService.Classes
 					{
 						return ErrorStatus.DublicateUser;
 					}
-					return ErrorStatus.UserNotFound;
+					return ErrorStatus.UserAlreadyExist;
 				}
 				dataReader.Close();
 				command.Dispose();
