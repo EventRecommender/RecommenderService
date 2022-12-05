@@ -109,7 +109,14 @@ namespace RecommenderService.Classes
 
 			while (dataReader.Read())
 			{
-				dict[(string)dataReader[1]] = (dict[(string)dataReader[1]] + (float)dataReader[2]);
+				if (!dict.ContainsKey((string)dataReader[1])) //check if NOT exist
+				{
+					dict[(string)dataReader[1]] = (float)dataReader[2] / similarUsersList.Count;
+				}
+				else
+				{
+					dict[(string)dataReader[1]] = (dict[(string)dataReader[1]] + ((float)dataReader[2] / similarUsersList.Count));
+				}
 			}
 
 			dataReader.Close();
