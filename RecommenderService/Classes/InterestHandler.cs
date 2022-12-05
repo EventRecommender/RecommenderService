@@ -114,12 +114,10 @@ namespace RecommenderService.Classes
 			{
 				if (!dict.ContainsKey((string)dataReader[1])) //check if NOT exist
 				{
-					dict[(string)dataReader[1]] = (float)dataReader[2] / similarUsersList.Count;
+					dict[(string)dataReader[1]] = 25 / (similarUsersList.Count + 1);// +1 to account for the user
 				}
-				else
-				{
-					dict[(string)dataReader[1]] = (dict[(string)dataReader[1]] + ((float)dataReader[2] / similarUsersList.Count));
-				}
+
+				dict[(string)dataReader[1]] = (dict[(string)dataReader[1]] + ((float)dataReader[2] / (similarUsersList.Count + 1)));
 			}
 
 			dataReader.Close();

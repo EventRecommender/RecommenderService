@@ -54,15 +54,11 @@ app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types)
 			//Unhandled Result
 			return Results.BadRequest("Unhandled result");
 		}
-		
 	}
 	catch (Exception)
 	{
 		return Results.Problem("Unhandled exception occured");
 	}
-	
-
-	
 });
 
 app.MapPost("/UpdateUserInterests", (string User_ID, List<string> activity_types, UpdateType Update_type) =>
