@@ -24,7 +24,7 @@ app.MapGet("/GetRecommendation", (string User_ID) =>
 	return something;
 });
 
-app.MapPut("/RemoveUserInterests", (string User_ID) =>
+app.MapPost("/RemoveUserInterests", (string User_ID) =>
 {
 	//TODO: Do stuff
 	return something;
@@ -36,7 +36,7 @@ app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types)
 	return something;
 });
 
-app.MapPut("/UpdateUserInterests", (string User_ID, List<string> activity_types, UpdateType Update_type) =>
+app.MapPost("/UpdateUserInterests", (string User_ID, List<string> activity_types, UpdateType Update_type) =>
 {
 	//TODO: Do stuff
 	return something;

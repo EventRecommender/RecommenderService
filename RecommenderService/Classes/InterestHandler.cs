@@ -26,7 +26,7 @@ namespace RecommenderService.Classes
 		{
 			connection.Open();
 
-			//Check if user exist
+			//Check if user exist:
 			string SQLstatement = $"SELECT COUNT(*)" +
 										$" FROM interest" +
 										$" WHERE UserID = {user_ID}";
@@ -60,11 +60,12 @@ namespace RecommenderService.Classes
 
 				throw; //TODO: Do stuff
 			}
-			//Check for user done
 
-			//Calculate interests
+			//Calculate interests:
+			Dictionary<string, float> interest = GetSimilarInterests(initial_types);
 
-			List<string> interest = GetSimilarInterests(initial_types);
+
+
 
 
 			SQLstatement = "";
@@ -76,24 +77,65 @@ namespace RecommenderService.Classes
 
 			command.Dispose();
 
-			//Calculation done
-
 			connection.Close();
 
 			return ErrorStatus.Success;
 		}
 
-		public List<string> GetSimilarInterests(List<string> initial_types)
+		public Dictionary<string, float> GetSimilarInterests(List<string> initial_types)
 		{
-			connection.Open();
+			//Get similar users:
+			List<int> similarUsersList = GetSimilarUsers(initial_types);
 
+
+			// Get interests from similar users:
+			StringBuilder sb = new StringBuilder("");
+			foreach(int user in similarUsersList) 
+			{
+				sb.Append($"'{user}',");
+			}
+			sb.Remove(sb.Length - 1, 1); //removes trailing comma
+			string similarUsers = sb.ToString();
+			sb.Clear();
+
+			string SQLstatement =	$"SELECT * " +
+									$"FROM Interest " +
+									$"WHERE UserID IN ({similarUsers})";
+
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataReader dataReader = command.ExecuteReader();
+
+			Dictionary<string, float> dict = new Dictionary<string, float>();
+
+			while (dataReader.Read())
+			{
+				dict[(string)dataReader[1]] = (dict[(string)dataReader[1]] + (float)dataReader[2]);
+			}
+
+			dataReader.Close();
+			command.Dispose();
+
+			return dict;
+		}
+
+		public List<int> GetSimilarUsers(List<string> initial_types)
+		{
 			int val1 = 15;
 			int val2 = 40; // used to stop outliers.
 
-			string SQLstatement =	$"SELECT DISTINCT UserID " +
+			StringBuilder sb = new StringBuilder("");
+			foreach (string type in initial_types)
+			{
+				sb.Append($"'{type}',");
+			}
+			sb.Remove(sb.Length - 1, 1); //removes trailing comma
+			string types = sb.ToString();
+			sb.Clear();
+
+			string SQLstatement = $"SELECT DISTINCT UserID " +
 									$"FROM (SELECT UserID, COUNT(UserID) as count" +
 									$"			FROM Interest" +
-									$"			WHERE TypeID IN ('{initial_types[0]}', '{initial_types[1]}', '{initial_types[2]}', '{initial_types[3]}')" +
+									$"			WHERE TypeID IN ('{types}')" +
 									$"			AND TypeID IN" +
 									$"				(SELECT * " +
 									$"						FROM Interest" +
@@ -105,17 +147,16 @@ namespace RecommenderService.Classes
 			SqlCommand command = new SqlCommand(SQLstatement, connection);
 			SqlDataReader dataReader = command.ExecuteReader();
 
-			List<int> similarUsers = new List<int>();
+			List<int> similarUsersList = new List<int>();
 
 			while (dataReader.Read())
 			{
-				similarUsers.Add((int)dataReader[0]);
+				similarUsersList.Add((int)dataReader[0]);
 			}
-
+			dataReader.Close();
 			command.Dispose();
 
-			connection.Close();
-			return default;
+			return similarUsersList;
 		}
 
 	}
