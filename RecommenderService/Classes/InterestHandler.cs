@@ -27,38 +27,12 @@ namespace RecommenderService.Classes
 			connection.Open();
 
 			//Check if user exist:
-			string SQLstatement = $"SELECT COUNT(*)" +
-										$" FROM interest" +
-										$" WHERE userid = {user_ID}";
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			ErrorStatus userCheck = CheckIfUserExist(user_ID);
 
-			string idCountString = dataReader.GetString(0);
-			try
+			if (userCheck != ErrorStatus.UserNotFound) //The user should not exist.
 			{
-				var idCount = int.Parse(idCountString);
-
-				if (idCount > 0)
-				{
-					dataReader.Close();
-					command.Dispose();
-					connection.Close();
-					if (idCount > 1)
-					{
-						return ErrorStatus.DublicateUser;
-					}
-					return ErrorStatus.UserAlreadyExist;
-				}
-				dataReader.Close();
-				command.Dispose();
-			}
-			catch (FormatException)
-			{
-				dataReader.Close();
-				command.Dispose();
 				connection.Close();
-
-				throw; //TODO: Do stuff
+				return userCheck;
 			}
 
 			//Calculate interests:
@@ -69,9 +43,9 @@ namespace RecommenderService.Classes
 			{
 				sb.AppendLine($"INSERT INTO interest (userid, tag, value) values({user_ID}, {kvp.Key}, {kvp.Value})");
 			}
-			SQLstatement = sb.ToString();
+			string SQLstatement = sb.ToString();
 
-			command = new SqlCommand(SQLstatement, connection);
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
 			SqlDataAdapter adapter = new SqlDataAdapter();
 
 			adapter.InsertCommand = command;
@@ -165,6 +139,51 @@ namespace RecommenderService.Classes
 			command.Dispose();
 
 			return similarUsersList;
+		}
+
+		public ErrorStatus updateUserInterests()
+		{
+
+
+
+			return 0; //to stop errors
+		}
+
+		public ErrorStatus CheckIfUserExist(string user_ID)
+		{
+			string SQLstatement = $"SELECT COUNT(*)" +
+										$" FROM interest" +
+										$" WHERE userid = {user_ID}";
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataReader dataReader = command.ExecuteReader();
+
+			string idCountString = dataReader.GetString(0);
+			try
+			{
+				var idCount = int.Parse(idCountString);
+
+				if (idCount > 0)
+				{
+					dataReader.Close();
+					command.Dispose();
+					if (idCount > 1)
+					{
+						return ErrorStatus.DublicateUser;
+					}
+					return ErrorStatus.UserAlreadyExist;
+				}
+				dataReader.Close();
+				command.Dispose();
+				return ErrorStatus.UserNotFound;
+			}
+			catch (FormatException)
+			{
+				dataReader.Close();
+				command.Dispose();
+				connection.Close();
+
+				throw; //TODO: Do stuff
+			}
 		}
 
 	}
