@@ -11,6 +11,7 @@
 		Success,
 		UserNotFound,
 		UserAlreadyExist,
-		DublicateUser
+		DublicateUser,
+		UserCheckError
 	}
 }

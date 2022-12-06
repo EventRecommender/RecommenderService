@@ -141,15 +141,78 @@ namespace RecommenderService.Classes
 			return similarUsersList;
 		}
 
-		public ErrorStatus updateUserInterests()
+		public ErrorStatus UpdateUserInterests(string User_ID, List<string> activity_types, UpdateType Update_type)
 		{
+			connection.Open();
+
+			ErrorStatus userCheck = CheckIfUserExist(User_ID);
+
+			if (userCheck != ErrorStatus.UserAlreadyExist)
+			{
+				return userCheck;
+			}
+
+			//Find MIN and MAX value needed for nomalization
+			string SQLstatement =	$"SELECT MIN(value), MAX(value) " +
+									$"FROM interest " +
+									$"WHERE userid == {User_ID}";
+
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataReader dataReader = command.ExecuteReader();
+
+			float min = 0;
+			float max = 0;
+
+			while (dataReader.Read())
+			{
+				min = (float)dataReader[0];
+				max = (float)dataReader[1];
+			}
+			dataReader.Close();
+			command.Dispose();
+
+			//Create new modified values
+			SQLstatement =	$"SELECT * " +
+							$"FROM interest " +
+							$"WHERE userid == {User_ID}";
+
+			command = new SqlCommand(SQLstatement, connection);
+			dataReader = command.ExecuteReader();
+
+			Dictionary<string, float> dict = new Dictionary<string, float>();
+
+			while (dataReader.Read())
+			{
+					dict[(string)dataReader[1]] = ((float)dataReader[2] - min) / (max - min) * 100; //Normalize: Zi = (xi - min(x)) / (max(x) - min(x)) * 100
+			}
+			dataReader.Close();
+			command.Dispose();
+
+			//Update with new values
+			StringBuilder sb = new StringBuilder("");
+			foreach (KeyValuePair<string, float> kvp in dict)
+			{
+				sb.AppendLine(	$"UPDATE interest " +
+								$"SET {kvp.Key} = '{kvp.Value}'" +
+								$"WHERE userid == {User_ID}");
+			}
+			SQLstatement = sb.ToString();
+
+			command = new SqlCommand(SQLstatement, connection);
+			SqlDataAdapter adapter = new SqlDataAdapter();
+
+			adapter.InsertCommand = command;
+			adapter.InsertCommand.ExecuteNonQuery();
+
+			command.Dispose();
+			adapter.Dispose();
 
 
-
-			return 0; //to stop errors
+			connection.Close();
+			return ErrorStatus.Success;
 		}
 
-		public ErrorStatus CheckIfUserExist(string user_ID)
+		public ErrorStatus CheckIfUserExist(string user_ID) 
 		{
 			string SQLstatement = $"SELECT COUNT(*)" +
 										$" FROM interest" +
@@ -157,7 +220,14 @@ namespace RecommenderService.Classes
 			SqlCommand command = new SqlCommand(SQLstatement, connection);
 			SqlDataReader dataReader = command.ExecuteReader();
 
-			string idCountString = dataReader.GetString(0);
+
+			string idCountString = "-1"; //used to check for error
+			while (dataReader.Read())
+			{
+				idCountString = dataReader.GetString(0);
+			}
+
+			
 			try
 			{
 				var idCount = int.Parse(idCountString);
@@ -168,21 +238,24 @@ namespace RecommenderService.Classes
 					command.Dispose();
 					if (idCount > 1)
 					{
-						return ErrorStatus.DublicateUser;
+						return ErrorStatus.DublicateUser; //More than one
 					}
-					return ErrorStatus.UserAlreadyExist;
+					return ErrorStatus.UserAlreadyExist; //Just one User
+				}
+				else if (idCount < 0)
+				{
+					return ErrorStatus.UserCheckError; //Could not check
 				}
 				dataReader.Close();
 				command.Dispose();
-				return ErrorStatus.UserNotFound;
+				return ErrorStatus.UserNotFound; //No user exist
 			}
 			catch (FormatException)
 			{
 				dataReader.Close();
 				command.Dispose();
 				connection.Close();
-
-				throw; //TODO: Do stuff
+				return ErrorStatus.UserCheckError;	//Could not check
 			}
 		}
 
