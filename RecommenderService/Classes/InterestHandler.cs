@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -145,6 +146,19 @@ namespace RecommenderService.Classes
 		{
 			connection.Open();
 
+			//Determine value to update with
+			int updateVal = 0;
+
+			if (Update_type == UpdateType.Like)
+			{
+				updateVal = 5;
+			}
+			else if (Update_type == UpdateType.Dislike)
+			{
+				updateVal = -5;
+			}
+
+			//Check if user exist
 			ErrorStatus userCheck = CheckIfUserExist(User_ID);
 
 			if (userCheck != ErrorStatus.UserAlreadyExist)
@@ -152,43 +166,44 @@ namespace RecommenderService.Classes
 				return userCheck;
 			}
 
-			//Find MIN and MAX value needed for nomalization
-			string SQLstatement =	$"SELECT MIN(value), MAX(value) " +
+			//Get current values from database
+			string SQLstatement =	$"SELECT * " +
 									$"FROM interest " +
 									$"WHERE userid == {User_ID}";
 
 			SqlCommand command = new SqlCommand(SQLstatement, connection);
 			SqlDataReader dataReader = command.ExecuteReader();
 
-			float min = 0;
-			float max = 0;
 
-			while (dataReader.Read())
-			{
-				min = (float)dataReader[0];
-				max = (float)dataReader[1];
-			}
-			dataReader.Close();
-			command.Dispose();
-
-			//Create new modified values
-			SQLstatement =	$"SELECT * " +
-							$"FROM interest " +
-							$"WHERE userid == {User_ID}";
-
-			command = new SqlCommand(SQLstatement, connection);
-			dataReader = command.ExecuteReader();
-
+			//Save values in dictionary
 			Dictionary<string, float> dict = new Dictionary<string, float>();
-
 			while (dataReader.Read())
 			{
-					dict[(string)dataReader[1]] = ((float)dataReader[2] - min) / (max - min) * 100; //Normalize: Zi = (xi - min(x)) / (max(x) - min(x)) * 100
+				if (activity_types.Contains((string)dataReader[1]))
+				{
+					dict[(string)dataReader[1]] = (float)dataReader[2];
+				}
 			}
 			dataReader.Close();
 			command.Dispose();
 
-			//Update with new values
+			//update values in dictionary
+			foreach (var tag in activity_types) 
+			{
+				dict[tag] = dict[tag] + updateVal;
+			}
+
+			//Find MIN and MAX values in dictionary
+			KeyValuePair<string, float> min = dict.Aggregate((l, r) => l.Value < r.Value ? l : r);
+			KeyValuePair<string, float> max = dict.Aggregate((l, r) => l.Value > r.Value ? l : r);
+
+			//Normalize dictionary
+			foreach (KeyValuePair<string, float> kvp in dict) 
+			{
+				dict[kvp.Key] = (kvp.Value - min.Value) / (max.Value - min.Value) * 100; // Zi = (xi - min(x)) / (max(x) - min(x)) * 100
+			}
+
+			//Update database with new values
 			StringBuilder sb = new StringBuilder("");
 			foreach (KeyValuePair<string, float> kvp in dict)
 			{
@@ -207,7 +222,7 @@ namespace RecommenderService.Classes
 			command.Dispose();
 			adapter.Dispose();
 
-
+			//Finished
 			connection.Close();
 			return ErrorStatus.Success;
 		}
