@@ -8,19 +8,20 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
 
 namespace RecommenderService.Classes
 {
 	public class InterestHandler
 	{
 		string connectionString { get; set; }
-		SqlConnection connection { get; set; }
+		MySqlConnection connection { get; set; }
 		
 
 		public InterestHandler()
 		{
-			connectionString = @"";
-			connection = new SqlConnection(connectionString);
+			connectionString = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
+			connection = new MySqlConnection(connectionString);
 		}
 
 		public ErrorStatus CreateUserInterests(string user_ID, List<string> initial_types)
@@ -42,12 +43,12 @@ namespace RecommenderService.Classes
 			StringBuilder sb = new StringBuilder("");
 			foreach(KeyValuePair<string, float> kvp in interest)
 			{
-				sb.AppendLine($"INSERT INTO interest (userid, tag, value) values({user_ID}, {kvp.Key}, {kvp.Value})");
+				sb.AppendLine($"INSERT INTO interest (userid, tag, interestvalue) values({user_ID}, {kvp.Key}, {kvp.Value})");
 			}
 			string SQLstatement = sb.ToString();
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataAdapter adapter = new SqlDataAdapter();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
 			adapter.InsertCommand = command;
 			adapter.InsertCommand.ExecuteNonQuery();
@@ -80,8 +81,8 @@ namespace RecommenderService.Classes
 									$"FROM interest " +
 									$"WHERE userid IN ({similarUsers})";
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 			Dictionary<string, float> dict = new Dictionary<string, float>();
 
@@ -116,19 +117,17 @@ namespace RecommenderService.Classes
 			sb.Clear();
 
 			string SQLstatement = $"SELECT DISTINCT userid " +
-									$"FROM (SELECT userid, COUNT(userid) as count" +
-									$"			FROM interest" +
-									$"			WHERE tag IN ('{types}')" +
-									$"			AND tag IN" +
-									$"				(SELECT * " +
-									$"						FROM interest" +
-									$"						WHERE value BETWEEN {val1} AND {val2})) " +
+									$"FROM (SELECT userid, COUNT(userid) as count " +
+										$"FROM interest " +
+										$"WHERE tag IN ({types}) " +
+										$"AND tag IN " +
+												$"(SELECT * " +
+												$"FROM interest " +
+												$"WHERE interestvalue BETWEEN {val1} AND {val2}))" +
 									$"WHERE count = 4"; // "count" is the number of types which are the same as those in initial_types.
 
-
-
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 			List<int> similarUsersList = new List<int>();
 
@@ -171,8 +170,8 @@ namespace RecommenderService.Classes
 									$"FROM interest " +
 									$"WHERE userid == {User_ID}";
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 
 			//Save values in dictionary
@@ -213,8 +212,8 @@ namespace RecommenderService.Classes
 			}
 			SQLstatement = sb.ToString();
 
-			command = new SqlCommand(SQLstatement, connection);
-			SqlDataAdapter adapter = new SqlDataAdapter();
+			command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
 			adapter.InsertCommand = command;
 			adapter.InsertCommand.ExecuteNonQuery();
@@ -232,8 +231,8 @@ namespace RecommenderService.Classes
 			string SQLstatement = $"SELECT COUNT(*)" +
 										$" FROM interest" +
 										$" WHERE userid = {user_ID}";
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 
 			string idCountString = "-1"; //used to check for error

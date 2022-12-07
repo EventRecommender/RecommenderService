@@ -1,4 +1,7 @@
 using RecommenderService.Classes;
+using MySql.Data.MySqlClient;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+//test
+app.MapPost("/", (string tests) =>
+{
+	string cs = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
+
+	using var con = new MySqlConnection(cs);
+	con.Open();
+	Console.WriteLine(tests[0]);
+	return ($"MySQL version : {con.ServerVersion}");
+});
 
 app.MapGet("/CalculateRecommendation", (string User_ID) =>
 {
@@ -28,12 +42,13 @@ app.MapPost("/RemoveUserInterests", (string User_ID) =>
 	return Results.Problem("not implemented");
 });
 
-app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types) =>
+app.MapPost("/CreateUserInterests", (string user_ID, string initial_types) =>
 {
 	try
 	{
+		List<String> types = JsonSerializer.Deserialize<List<String>>(initial_types);
 		InterestHandler handler = new InterestHandler();
-		ErrorStatus result = handler.CreateUserInterests(user_ID, initial_types);
+		ErrorStatus result = handler.CreateUserInterests(user_ID, types);
 
 		if (result == ErrorStatus.Success)
 		{
@@ -53,9 +68,9 @@ app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types)
 			return Results.BadRequest("Unhandled result");
 		}
 	}
-	catch (Exception)
+	catch (Exception ex)
 	{
-		return Results.Problem("Unhandled exception occured");
+		return Results.Problem("Unhandled exception occured" + ex.GetType() + ex.Message);
 	}
 });
 
