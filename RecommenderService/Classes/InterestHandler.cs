@@ -254,8 +254,6 @@ namespace RecommenderService.Classes
 			adapter.Dispose();
 
 
-
-
 			connection.Close();
 			return ErrorStatus.Success;
 		}
