@@ -23,6 +23,40 @@ namespace RecommenderService.Classes
 			connection = new SqlConnection(connectionString);
 		}
 
+		public Tuple<ErrorStatus,Dictionary<string, float>> GetUserInterests(string User_ID)
+		{
+			connection.Open();
+
+			//Check if user exist:
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
+
+			if (userCheck != ErrorStatus.UserNotFound) //The user should not exist.
+			{
+				connection.Close();
+				return new Tuple<ErrorStatus, Dictionary<string, float>>(userCheck,new Dictionary<string, float>());
+			}
+
+			string SQLstatement =	$"SELECT * " +
+									$"FROM interest " +
+									$"WHERE userid == {User_ID}";
+
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataReader dataReader = command.ExecuteReader();
+
+			//Save values in dictionary
+			Dictionary<string, float> dict = new Dictionary<string, float>();
+			while (dataReader.Read())
+			{
+				dict[(string)dataReader[1]] = (float)dataReader[2];
+			}
+			dataReader.Close();
+			command.Dispose();
+
+
+			connection.Close();
+			return new Tuple<ErrorStatus, Dictionary<string, float>>(ErrorStatus.Success, dict);
+		}
+
 		public ErrorStatus CreateUserInterests(string user_ID, List<string> initial_types)
 		{
 			connection.Open();
