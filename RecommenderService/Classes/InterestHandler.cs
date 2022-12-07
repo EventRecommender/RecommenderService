@@ -24,12 +24,46 @@ namespace RecommenderService.Classes
 			connection = new MySqlConnection(connectionString);
 		}
 
+		public Tuple<ErrorStatus,Dictionary<string, float>> GetUserInterests(string User_ID)
+		{
+			connection.Open();
+
+			//Check if user exist:
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
+
+			if (userCheck != ErrorStatus.UserNotFound) //The user should not exist.
+			{
+				connection.Close();
+				return new Tuple<ErrorStatus, Dictionary<string, float>>(userCheck,new Dictionary<string, float>());
+			}
+
+			string SQLstatement =	$"SELECT * " +
+									$"FROM interest " +
+									$"WHERE userid == {User_ID}";
+
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataReader dataReader = command.ExecuteReader();
+
+			//Save values in dictionary
+			Dictionary<string, float> dict = new Dictionary<string, float>();
+			while (dataReader.Read())
+			{
+				dict[(string)dataReader[1]] = (float)dataReader[2];
+			}
+			dataReader.Close();
+			command.Dispose();
+
+
+			connection.Close();
+			return new Tuple<ErrorStatus, Dictionary<string, float>>(ErrorStatus.Success, dict);
+		}
+
 		public ErrorStatus CreateUserInterests(string user_ID, List<string> initial_types)
 		{
 			connection.Open();
 
 			//Check if user exist:
-			ErrorStatus userCheck = CheckIfUserExist(user_ID);
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(user_ID, "interest", connection);
 
 			if (userCheck != ErrorStatus.UserNotFound) //The user should not exist.
 			{
@@ -158,10 +192,11 @@ namespace RecommenderService.Classes
 			}
 
 			//Check if user exist
-			ErrorStatus userCheck = CheckIfUserExist(User_ID);
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
 
 			if (userCheck != ErrorStatus.UserAlreadyExist)
 			{
+				connection.Close();
 				return userCheck;
 			}
 
@@ -226,52 +261,42 @@ namespace RecommenderService.Classes
 			return ErrorStatus.Success;
 		}
 
-		public ErrorStatus CheckIfUserExist(string user_ID) 
+		public ErrorStatus RemoveUserInterest(string User_ID)
 		{
+			connection.Open();
 			string SQLstatement = $"SELECT COUNT(*)" +
 										$" FROM interest" +
 										$" WHERE userid = {user_ID}";
-			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
-			MySqlDataReader dataReader = command.ExecuteReader();
 
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataReader dataReader = command.ExecuteReader();
 
-			string idCountString = "-1"; //used to check for error
-			while (dataReader.Read())
+			//Check if user exist
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
+
+			if (userCheck != ErrorStatus.UserAlreadyExist)
 			{
-				idCountString = dataReader.GetString(0);
-			}
-
-			
-			try
-			{
-				var idCount = int.Parse(idCountString);
-
-				if (idCount > 0)
-				{
-					dataReader.Close();
-					command.Dispose();
-					if (idCount > 1)
-					{
-						return ErrorStatus.DublicateUser; //More than one
-					}
-					return ErrorStatus.UserAlreadyExist; //Just one User
-				}
-				else if (idCount < 0)
-				{
-					return ErrorStatus.UserCheckError; //Could not check
-				}
-				dataReader.Close();
-				command.Dispose();
-				return ErrorStatus.UserNotFound; //No user exist
-			}
-			catch (FormatException)
-			{
-				dataReader.Close();
-				command.Dispose();
 				connection.Close();
-				return ErrorStatus.UserCheckError;	//Could not check
+				return userCheck;
 			}
-		}
 
+			//Delete records related to user.
+			string SQLstatement =	$"DELETE " +
+									$"FROM interest " +
+									$"WHERE userid == {User_ID}";
+
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataAdapter adapter = new SqlDataAdapter();
+
+			adapter.InsertCommand = command;
+			adapter.InsertCommand.ExecuteNonQuery();
+
+			command.Dispose();
+			adapter.Dispose();
+
+
+			connection.Close();
+			return ErrorStatus.Success;
+		}
 	}
 }
