@@ -28,7 +28,7 @@ namespace RecommenderService.Classes
 			connection.Open();
 
 			//Check if user exist:
-			ErrorStatus userCheck = CheckIfUserExist(user_ID);
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(user_ID, "interest", connection);
 
 			if (userCheck != ErrorStatus.UserNotFound) //The user should not exist.
 			{
@@ -159,10 +159,11 @@ namespace RecommenderService.Classes
 			}
 
 			//Check if user exist
-			ErrorStatus userCheck = CheckIfUserExist(User_ID);
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
 
 			if (userCheck != ErrorStatus.UserAlreadyExist)
 			{
+				connection.Close();
 				return userCheck;
 			}
 
@@ -232,10 +233,11 @@ namespace RecommenderService.Classes
 			connection.Open();
 
 			//Check if user exist
-			ErrorStatus userCheck = CheckIfUserExist(User_ID);
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
 
 			if (userCheck != ErrorStatus.UserAlreadyExist)
 			{
+				connection.Close();
 				return userCheck;
 			}
 
@@ -257,53 +259,5 @@ namespace RecommenderService.Classes
 			connection.Close();
 			return ErrorStatus.Success;
 		}
-
-		public ErrorStatus CheckIfUserExist(string user_ID) 
-		{
-			string SQLstatement = $"SELECT COUNT(*)" +
-										$" FROM interest" +
-										$" WHERE userid = {user_ID}";
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
-
-
-			string idCountString = "-1"; //used to check for error
-			while (dataReader.Read())
-			{
-				idCountString = dataReader.GetString(0);
-			}
-
-			
-			try
-			{
-				var idCount = int.Parse(idCountString);
-
-				if (idCount > 0)
-				{
-					dataReader.Close();
-					command.Dispose();
-					if (idCount > 1)
-					{
-						return ErrorStatus.DublicateUser; //More than one
-					}
-					return ErrorStatus.UserAlreadyExist; //Just one User
-				}
-				else if (idCount < 0)
-				{
-					return ErrorStatus.UserCheckError; //Could not check
-				}
-				dataReader.Close();
-				command.Dispose();
-				return ErrorStatus.UserNotFound; //No user exist
-			}
-			catch (FormatException)
-			{
-				dataReader.Close();
-				command.Dispose();
-				connection.Close();
-				return ErrorStatus.UserCheckError;	//Could not check
-			}
-		}
-
 	}
 }
