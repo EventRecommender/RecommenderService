@@ -8,26 +8,24 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-
-
 app.MapGet("/CalculateRecommendation", (string User_ID) =>
 {
 	//Get should not change anything on the database... but... we do it anyway
 
 	//TODO: Do stuff
-	return something;
+	return Results.Problem("not implemented");
 });
 
 app.MapGet("/GetRecommendation", (string User_ID) =>
 {
 	//TODO: Do stuff
-	return something;
+	return Results.Problem("not implemented");
 });
 
 app.MapPost("/RemoveUserInterests", (string User_ID) =>
 {
 	//TODO: Do stuff
-	return something;
+	return Results.Problem("not implemented");
 });
 
 app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types) =>
@@ -64,7 +62,7 @@ app.MapPost("/CreateUserInterests", (string user_ID, List<string> initial_types)
 app.MapPost("/UpdateUserInterests", (string User_ID, List<string> activity_types, UpdateType Update_type) =>
 {
 	//TODO: Do stuff
-	return something;
+	return Results.Problem("not implemented");
 });
 
 
