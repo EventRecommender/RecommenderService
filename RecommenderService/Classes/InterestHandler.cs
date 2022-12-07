@@ -227,6 +227,39 @@ namespace RecommenderService.Classes
 			return ErrorStatus.Success;
 		}
 
+		public ErrorStatus RemoveUserInterest(string User_ID)
+		{
+			connection.Open();
+
+			//Check if user exist
+			ErrorStatus userCheck = CheckIfUserExist(User_ID);
+
+			if (userCheck != ErrorStatus.UserAlreadyExist)
+			{
+				return userCheck;
+			}
+
+			//Delete records related to user.
+			string SQLstatement =	$"DELETE " +
+									$"FROM interest " +
+									$"WHERE userid == {User_ID}";
+
+			SqlCommand command = new SqlCommand(SQLstatement, connection);
+			SqlDataAdapter adapter = new SqlDataAdapter();
+
+			adapter.InsertCommand = command;
+			adapter.InsertCommand.ExecuteNonQuery();
+
+			command.Dispose();
+			adapter.Dispose();
+
+
+
+
+			connection.Close();
+			return ErrorStatus.Success;
+		}
+
 		public ErrorStatus CheckIfUserExist(string user_ID) 
 		{
 			string SQLstatement = $"SELECT COUNT(*)" +
