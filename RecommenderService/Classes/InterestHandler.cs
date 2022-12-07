@@ -41,8 +41,8 @@ namespace RecommenderService.Classes
 									$"FROM interest " +
 									$"WHERE userid == {User_ID}";
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 			//Save values in dictionary
 			Dictionary<string, float> dict = new Dictionary<string, float>();
@@ -264,13 +264,6 @@ namespace RecommenderService.Classes
 		public ErrorStatus RemoveUserInterest(string User_ID)
 		{
 			connection.Open();
-			string SQLstatement = $"SELECT COUNT(*)" +
-										$" FROM interest" +
-										$" WHERE userid = {user_ID}";
-
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
-
 			//Check if user exist
 			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
 
@@ -285,8 +278,8 @@ namespace RecommenderService.Classes
 									$"FROM interest " +
 									$"WHERE userid == {User_ID}";
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataAdapter adapter = new SqlDataAdapter();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
 			adapter.InsertCommand = command;
 			adapter.InsertCommand.ExecuteNonQuery();

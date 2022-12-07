@@ -1,16 +1,16 @@
-﻿using System.Data.SqlClient;
+﻿using MySql.Data.MySqlClient;
 
 namespace RecommenderService.Classes
 {
 	public static class ServiceTools
 	{
-		public static ErrorStatus CheckIfUserExist(string user_ID, string DB_table, SqlConnection connection)
+		public static ErrorStatus CheckIfUserExist(string user_ID, string DB_table, MySqlConnection connection)
 		{
 			string SQLstatement = $"SELECT COUNT(*)" +
 									$" FROM {DB_table}" +
 									$" WHERE userid = {user_ID}";
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 
 			string idCountString = "-1"; //used to check for error

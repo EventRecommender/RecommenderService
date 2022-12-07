@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -15,13 +15,13 @@ namespace RecommenderService.Classes
 	public class RecommenderHandler
 	{
 		string connectionString { get; set; }
-		SqlConnection connection { get; set; }
+		MySqlConnection connection { get; set; }
 
 
 		public RecommenderHandler()
 		{
-			connectionString = @"";
-			connection = new SqlConnection(connectionString);
+			connectionString = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
+			connection = new MySqlConnection(connectionString);
 		}
 
 		public Tuple<ErrorStatus, Dictionary<string, int>> GetRecommendation(string User_ID)
@@ -42,8 +42,8 @@ namespace RecommenderService.Classes
 									$"FROM recommendation " +
 									$"WHERE userid == {User_ID}";
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataReader dataReader = command.ExecuteReader();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataReader dataReader = command.ExecuteReader();
 
 
 			//populate dict with the data
@@ -107,8 +107,8 @@ namespace RecommenderService.Classes
 			}
 			string SQLstatement = sb.ToString();
 
-			SqlCommand command = new SqlCommand(SQLstatement, connection);
-			SqlDataAdapter adapter = new SqlDataAdapter();
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
 			adapter.InsertCommand = command;
 			adapter.InsertCommand.ExecuteNonQuery();
