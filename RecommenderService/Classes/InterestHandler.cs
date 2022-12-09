@@ -222,16 +222,16 @@ namespace RecommenderService.Classes
 			return similarUsersList;
 		}
 
-		public ErrorStatus UpdateUserInterests(string User_ID, List<string> activity_types, int Update_type)
+		public ErrorStatus UpdateUserInterests(string User_ID, List<string> activity_types, UpdateType Update_type)
 		{
 			//Determine value to update with
 			int updateVal = 0;
 
-			if (Update_type == 0)
+			if (Update_type == UpdateType.Like)
 			{
 				updateVal = 5;
 			}
-			else if (Update_type == 1)
+			else if (Update_type == UpdateType.Dislike)
 			{
 				updateVal = -5;
 			}
@@ -261,7 +261,17 @@ namespace RecommenderService.Classes
 			//update values in dictionary
 			foreach (var tag in activity_types) 
 			{
-				dict[tag] = dict[tag] + updateVal;
+				if (Update_type == UpdateType.Like)
+				{
+					dict[tag] = dict[tag] + updateVal;
+				}
+				else if (Update_type == UpdateType.Dislike)
+				{
+					if (dict[tag] > Math.Abs(updateVal))
+					{
+						dict[tag] = dict[tag] + updateVal;
+					}
+				}
 				
 			}
 

@@ -156,7 +156,7 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 	}
 });
 
-app.MapPost("/UpdateUserInterests", (string userid, string activity_types, int update_type) =>
+app.MapPost("/UpdateUserInterests", (string userid, string activity_types, UpdateType update_type) =>
 {
 	try
 	{
