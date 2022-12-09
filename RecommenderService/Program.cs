@@ -22,7 +22,7 @@ app.MapPost("/", (string tests) =>
 	return ($"MySQL version : {con.ServerVersion}");
 });
 
-app.MapGet("/CalculateRecommendation", (string User_ID) =>
+app.MapPost("/CalculateRecommendation", (string User_ID) =>
 {
 	try
 	{
