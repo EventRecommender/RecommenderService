@@ -4,13 +4,11 @@ services:
     build: ./RecommenderService
     container_name: recommender-service
     ports:
-      - 80:80
+      - 8001:80
 
   mysql:
     image: mysql
     container_name: mysql_recommender
-    ports:
-      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: duper
       MYSQL_DATABASE: recommender_db
