@@ -40,7 +40,7 @@ namespace RecommenderService.Classes
 			//Get recommendation from database
 			string SQLstatement =	$"Select * " +
 									$"FROM recommendation " +
-									$"WHERE userid == {User_ID}";
+									$"WHERE userid = {User_ID}";
 
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataReader dataReader = command.ExecuteReader();
@@ -62,15 +62,26 @@ namespace RecommenderService.Classes
 
 		public ErrorStatus CalculateRecommendation(string User_ID, int amountOfRecommendations = 10)
 		{
-			connection.Open();
 
+			connection.Open();
 			//Check if user exist.
 			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "recommendation", connection);
-			if (userCheck != ErrorStatus.UserAlreadyExist)
+			connection.Close();
+			ErrorStatus deleted = ErrorStatus.None;
+			if (userCheck != ErrorStatus.UserNotFound)
 			{
-				connection.Close();
-				return userCheck;
+				deleted = RemoveRecommendation(User_ID);
+
+				if (deleted != ErrorStatus.Success)
+				{
+					
+					return deleted;
+				}
 			}
+
+
+
+			connection.Open();
 
 			//get user interests
 			InterestHandler ih = new InterestHandler();
@@ -82,7 +93,7 @@ namespace RecommenderService.Classes
 				return temp.Item1;
 			}
 
-			Dictionary<string, float> dictInterests = temp.Item2;
+			Dictionary<string, double> dictInterests = temp.Item2;
 
 
 			//sorting the dictionary, which changes the dictionary which is then converted back to a dictionary.
@@ -92,20 +103,62 @@ namespace RecommenderService.Classes
 
 			//Calculation of how many activities of each type.
 			//Current calculation type: Percentage
-			float amount = 0;
+			double amount = 0;
 			foreach (var kvp in sortedDict)
 			{
 				amount = (kvp.Value / 100) * amountOfRecommendations; 
 				amountDict.Add(kvp.Key, (int)Math.Round(amount));
 			}
 
-			//Insert into database
-			StringBuilder sb = new StringBuilder("");
+
+			StringBuilder sb = new StringBuilder($"INSERT INTO recommendation (userid, tag, amount) VALUES ");
+
+			List<string> rows = new List<string>();
 			foreach (KeyValuePair<string, int> kvp in amountDict)
 			{
-				sb.AppendLine($"INSERT INTO recommendation (userid, tag, value) values({User_ID}, {kvp.Key}, {kvp.Value})");
+				rows.Add(string.Format("('{0}','{1}', '{2}')", MySqlHelper.EscapeString(User_ID), MySqlHelper.EscapeString(kvp.Key), MySqlHelper.EscapeString((kvp.Value).ToString())));
 			}
+			sb.Append(string.Join(",", rows));
+			sb.Append(";");
+
 			string SQLstatement = sb.ToString();
+
+			if (string.IsNullOrEmpty(SQLstatement))
+			{
+				connection.Close();
+				return ErrorStatus.QueryStringEmpty;
+			}
+
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
+
+			command.CommandType = CommandType.Text;
+			adapter.InsertCommand = command;
+			adapter.InsertCommand.ExecuteNonQuery();
+
+			command.Dispose();
+			adapter.Dispose();
+
+			connection.Close();
+			return ErrorStatus.Success;
+		}
+
+		public ErrorStatus RemoveRecommendation(string User_ID)
+		{
+			connection.Open();
+			//Check if user exist
+			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "recommendation", connection);
+
+			if (userCheck != ErrorStatus.UserAlreadyExist)
+			{
+				connection.Close();
+				return userCheck;
+			}
+
+			//Delete records related to user.
+			string SQLstatement =	$"DELETE " +
+									$"FROM recommendation " +
+									$"WHERE userid = {User_ID}";
 
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
@@ -115,7 +168,6 @@ namespace RecommenderService.Classes
 
 			command.Dispose();
 			adapter.Dispose();
-
 
 
 			connection.Close();

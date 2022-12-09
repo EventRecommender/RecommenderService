@@ -12,6 +12,8 @@
 		UserNotFound,
 		UserAlreadyExist,
 		DublicateUser,
-		UserCheckError
+		UserCheckError,
+		QueryStringEmpty,
+		None
 	}
 }
