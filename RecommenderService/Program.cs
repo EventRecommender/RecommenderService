@@ -170,6 +170,10 @@ app.MapPost("/UpdateUserInterests", (string user_ID, string activity_types, int 
 		{
 			return Results.Ok();
 		}
+		else if (result == ErrorStatus.UserNotFound)
+		{
+			return Results.BadRequest("User does not exist");
+		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
 			return Results.Problem("The query string was empty");
