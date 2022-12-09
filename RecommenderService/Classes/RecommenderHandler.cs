@@ -49,8 +49,16 @@ namespace RecommenderService.Classes
 			//populate dict with the data
 			Dictionary<string, int> dict = new Dictionary<string, int>();
 
+			DateTime currentDate = DateTime.Now;
+			DateTime date;
 			while (dataReader.Read())
 			{
+				date = (DateTime)dataReader[3];
+				if ((date.Year < currentDate.Year) || (date.DayOfYear < currentDate.DayOfYear)) //check if data is out of date
+				{
+					connection.Close();
+					return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.DataOutdated, new Dictionary<string, int>());
+				} 
 				dict[(string)dataReader[1]] = (int)dataReader[2];
 			}
 
@@ -111,12 +119,12 @@ namespace RecommenderService.Classes
 			}
 
 
-			StringBuilder sb = new StringBuilder($"INSERT INTO recommendation (userid, tag, amount) VALUES ");
+			StringBuilder sb = new StringBuilder($"INSERT INTO recommendation (userid, tag, amount, creationdate) VALUES ");
 
 			List<string> rows = new List<string>();
 			foreach (KeyValuePair<string, int> kvp in amountDict)
 			{
-				rows.Add(string.Format("('{0}','{1}', '{2}')", MySqlHelper.EscapeString(User_ID), MySqlHelper.EscapeString(kvp.Key), MySqlHelper.EscapeString((kvp.Value).ToString())));
+				rows.Add(string.Format("('{0}','{1}', '{2}', '{3}')", MySqlHelper.EscapeString(User_ID), MySqlHelper.EscapeString(kvp.Key), MySqlHelper.EscapeString((kvp.Value).ToString()), (DateTime.Now).ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)));
 			}
 			sb.Append(string.Join(",", rows));
 			sb.Append(";");

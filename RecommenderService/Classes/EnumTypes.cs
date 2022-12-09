@@ -14,6 +14,7 @@
 		DublicateUser,
 		UserCheckError,
 		QueryStringEmpty,
-		None
+		None,
+		DataOutdated
 	}
 }

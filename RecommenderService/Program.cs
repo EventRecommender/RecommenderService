@@ -70,11 +70,15 @@ app.MapGet("/GetRecommendation", (string User_ID) =>
 		}
 		else if (result.Item1 == ErrorStatus.UserNotFound)
 		{
-			return Results.Problem("User not found");
+			return Results.BadRequest("User not found");
 		}
 		else if (result.Item1 == ErrorStatus.QueryStringEmpty)
 		{
 			return Results.Problem("The query string was empty");
+		}
+		else if (result.Item1 == ErrorStatus.DataOutdated)
+		{
+			return Results.BadRequest("Recommendation out of date");
 		}
 		else
 		{
