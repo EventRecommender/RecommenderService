@@ -105,7 +105,8 @@ namespace RecommenderService.Classes
 
 
 			//sorting the dictionary, which changes the dictionary which is then converted back to a dictionary.
-			var sortedDict = (from entry in dictInterests orderby entry.Value ascending select entry).ToDictionary(pair => pair.Key, pair => pair.Value);
+			//This is deone because the recommendations is shown to the user in order form most important to least.
+			var sortedDict = (from entry in dictInterests orderby entry.Value descending select entry).ToDictionary(pair => pair.Key, pair => pair.Value);
 
 			Dictionary<string, int> amountDict = new Dictionary<string, int>();
 
@@ -118,7 +119,7 @@ namespace RecommenderService.Classes
 				amountDict.Add(kvp.Key, (int)Math.Round(amount));
 			}
 
-
+			//Create insert SQL
 			StringBuilder sb = new StringBuilder($"INSERT INTO recommendation (userid, tag, amount, creationdate) VALUES ");
 
 			List<string> rows = new List<string>();
@@ -137,6 +138,7 @@ namespace RecommenderService.Classes
 				return ErrorStatus.QueryStringEmpty;
 			}
 
+			//Insert into DB
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
 

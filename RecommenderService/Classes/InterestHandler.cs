@@ -38,6 +38,8 @@ namespace RecommenderService.Classes
 				return new Tuple<ErrorStatus, Dictionary<string, double>>(userCheck,new Dictionary<string, double>());
 			}
 
+
+			//get user interests
 			string SQLstatement =	$"SELECT * " +
 									$"FROM interest " +
 									$"WHERE userid = {User_ID}";
@@ -72,11 +74,12 @@ namespace RecommenderService.Classes
 				return userCheck;
 			}
 
-			//Calculate interests:
+			//Get similar users:
 			Dictionary<string, double> interest = GetSimilarInterests(initial_types);
 
-			StringBuilder sb = new StringBuilder($"INSERT INTO interest (userid, tag, interestvalue) VALUES ");
 
+			//Create SQL string for inserting into db
+			StringBuilder sb = new StringBuilder($"INSERT INTO interest (userid, tag, interestvalue) VALUES ");
 			List<string> rows = new List<string>();
 			foreach(KeyValuePair<string, double> kvp in interest)
 			{
@@ -93,6 +96,7 @@ namespace RecommenderService.Classes
 				return ErrorStatus.QueryStringEmpty;
 			}
 
+			//Execute SQL
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
@@ -114,7 +118,7 @@ namespace RecommenderService.Classes
 			List<int> similarUsersList = GetSimilarUsers(initial_types);
 
 
-			// Get interests from similar users:
+			// Create SQL list of similar users
 			StringBuilder sb = new StringBuilder("");
 			foreach(int user in similarUsersList) 
 			{
@@ -133,6 +137,8 @@ namespace RecommenderService.Classes
 			string similarUsers = sb.ToString();
 			sb.Clear();
 
+
+			//Get interests from similar users
 			string SQLstatement =	$"SELECT * " +
 									$"FROM interest " +
 									$"WHERE userid IN ({similarUsers})";
@@ -140,8 +146,9 @@ namespace RecommenderService.Classes
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataReader dataReader = command.ExecuteReader();
 
-			Dictionary<string, double> dict = new Dictionary<string, double>();
 
+			//Create dictionary with average interests from similar users
+			Dictionary<string, double> dict = new Dictionary<string, double>();
 			foreach (string type in initial_types)
 			{
 				dict[type] = 100 / initial_types.Count;
@@ -164,6 +171,7 @@ namespace RecommenderService.Classes
 			int val2 = 40; // used to stop outliers.
 			int countNumber = 4; //amount of tags which other users have to have within the limit
 
+			//Create SQL list of the initial_types
 			StringBuilder sb = new StringBuilder("");
 			foreach (string type in initial_types)
 			{
@@ -183,6 +191,7 @@ namespace RecommenderService.Classes
 			sb.Clear();
 
 
+			//Create SQL transaction
 			string SQLstatement =	$"SELECT DISTINCT id " +
 									$"FROM (SELECT userid AS id, COUNT(userid) as count " +
 										$"FROM interest " +
@@ -200,8 +209,9 @@ namespace RecommenderService.Classes
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataReader dataReader = command.ExecuteReader();
 
-			List<int> similarUsersList = new List<int>();
 
+			//Get similar users
+			List<int> similarUsersList = new List<int>();
 			while (dataReader.Read())
 			{
 				similarUsersList.Add((int)dataReader[0]);
