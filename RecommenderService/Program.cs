@@ -22,13 +22,13 @@ app.MapPost("/", (string tests) =>
 	return ($"MySQL version : {con.ServerVersion}");
 });
 
-app.MapPost("/CalculateRecommendation", (string User_ID) =>
+app.MapPost("/CalculateRecommendation", (string userid) =>
 {
 	try
 	{
 		RecommenderHandler handler = new();
 
-		ErrorStatus result = handler.CalculateRecommendation(User_ID);
+		ErrorStatus result = handler.CalculateRecommendation(userid);
 
 		if (result == ErrorStatus.Success)
 		{
@@ -54,13 +54,13 @@ app.MapPost("/CalculateRecommendation", (string User_ID) =>
 	}
 });
 
-app.MapGet("/GetRecommendation", (string User_ID) =>
+app.MapGet("/GetRecommendation", (string userid) =>
 {
 	try
 	{
 		RecommenderHandler handler = new();
 
-		var result = handler.GetRecommendation(User_ID);
+		var result = handler.GetRecommendation(userid);
 
 		if (result.Item1 == ErrorStatus.Success)
 		{
@@ -92,13 +92,13 @@ app.MapGet("/GetRecommendation", (string User_ID) =>
 	}
 });
 
-app.MapPost("/RemoveUserInterests", (string User_ID) =>
+app.MapPost("/RemoveUserInterests", (string userid) =>
 {
 	try
 	{
 		InterestHandler handler = new InterestHandler();
 
-		ErrorStatus result = handler.RemoveUserInterest(User_ID);
+		ErrorStatus result = handler.RemoveUserInterest(userid);
 
 		if (result == ErrorStatus.Success)
 		{
@@ -124,13 +124,13 @@ app.MapPost("/RemoveUserInterests", (string User_ID) =>
 	}
 });
 
-app.MapPost("/CreateUserInterests", (string user_ID, string initial_types) =>
+app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 {
 	try
 	{
 		List<String> types = JsonSerializer.Deserialize<List<String>>(initial_types);
 		InterestHandler handler = new InterestHandler();
-		ErrorStatus result = handler.CreateUserInterests(user_ID, types);
+		ErrorStatus result = handler.CreateUserInterests(userid, types);
 
 		if (result == ErrorStatus.Success)
 		{
@@ -156,7 +156,7 @@ app.MapPost("/CreateUserInterests", (string user_ID, string initial_types) =>
 	}
 });
 
-app.MapPost("/UpdateUserInterests", (string user_ID, string activity_types, int update_type) =>
+app.MapPost("/UpdateUserInterests", (string userid, string activity_types, int update_type) =>
 {
 	try
 	{
@@ -164,7 +164,7 @@ app.MapPost("/UpdateUserInterests", (string user_ID, string activity_types, int 
 
 		InterestHandler handler = new InterestHandler();
 
-		ErrorStatus result = handler.UpdateUserInterests(user_ID, types, update_type);
+		ErrorStatus result = handler.UpdateUserInterests(userid, types, update_type);
 
 		if (result == ErrorStatus.Success)
 		{
