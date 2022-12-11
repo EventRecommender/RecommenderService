@@ -11,17 +11,6 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-//test
-app.MapPost("/", (string tests) =>
-{
-	string cs = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
-
-	using var con = new MySqlConnection(cs);
-	con.Open();
-	Console.WriteLine(tests[0]);
-	return ($"MySQL version : {con.ServerVersion}");
-});
-
 app.MapPost("/CalculateRecommendation", (string userid) =>
 {
 	try
@@ -64,9 +53,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 
 		if (result.Item1 == ErrorStatus.Success)
 		{
-			string json = JsonSerializer.Serialize<Dictionary<string, int>>(result.Item2);
-
-			return Results.Ok(json);
+			return Results.Json(result.Item2);
 		}
 		else if (result.Item1 == ErrorStatus.UserNotFound)
 		{
