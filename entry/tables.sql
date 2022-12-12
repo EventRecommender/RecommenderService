@@ -8,5 +8,5 @@ CREATE TABLE recommendation(
 CREATE TABLE interest(
     userid INT NOT NULL,
     tag VARCHAR(255) NOT NULL,
-    interestvalue DOUBLE NOT NULL
+    interestvalue DOUBLE PRECISION NOT NULL
 );

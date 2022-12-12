@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Relational;
+using System.Globalization;
 
 namespace RecommenderService.Classes
 {
@@ -22,6 +22,12 @@ namespace RecommenderService.Classes
 		public InterestHandler()
 		{
 			connectionString = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
+			connection = new MySqlConnection(connectionString);
+		}
+
+		public InterestHandler(string _connectionString)
+		{
+			connectionString = _connectionString;
 			connection = new MySqlConnection(connectionString);
 		}
 
@@ -74,6 +80,8 @@ namespace RecommenderService.Classes
 				return userCheck;
 			}
 
+			connection.Close();
+
 			//Get similar users:
 			Dictionary<string, double> interest = GetSimilarInterests(initial_types);
 
@@ -83,7 +91,8 @@ namespace RecommenderService.Classes
 			List<string> rows = new List<string>();
 			foreach(KeyValuePair<string, double> kvp in interest)
 			{
-				rows.Add(string.Format("('{0}','{1}', '{2}')", MySqlHelper.EscapeString(user_ID), MySqlHelper.EscapeString(kvp.Key), MySqlHelper.EscapeString((kvp.Value).ToString())));
+				rows.Add(string.Format("('{0}', '{1}', '{2}')", MySqlHelper.EscapeString(user_ID), MySqlHelper.EscapeString(kvp.Key), MySqlHelper.EscapeString(Math.Round(kvp.Value, 3).ToString("n", CultureInfo.InvariantCulture))));
+				Console.WriteLine("Added to DB - " + "UserID: " + user_ID + " Key: " + kvp.Key + " Value: " + kvp.Value);
 			}
 			sb.Append(string.Join(",", rows));
 			sb.Append(";");
@@ -97,8 +106,11 @@ namespace RecommenderService.Classes
 			}
 
 			//Execute SQL
+			connection.Open();
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
+
+			Console.WriteLine("STRING: " + SQLstatement);
 
 			command.CommandType = CommandType.Text;
 			adapter.InsertCommand = command;
@@ -114,10 +126,11 @@ namespace RecommenderService.Classes
 
 		public Dictionary<string, double> GetSimilarInterests(List<string> initial_types)
 		{
+			
 			//Get similar users:
 			List<int> similarUsersList = GetSimilarUsers(initial_types);
 
-
+			connection.Open();
 			// Create SQL list of similar users
 			StringBuilder sb = new StringBuilder("");
 			foreach(int user in similarUsersList) 
@@ -151,18 +164,33 @@ namespace RecommenderService.Classes
 			Dictionary<string, double> dict = new Dictionary<string, double>();
 			foreach (string type in initial_types)
 			{
-				dict[type] = 100 / initial_types.Count;
+				dict[type] = ((double)100 / initial_types.Count);
+				Console.WriteLine("Self - Key: " + type + " Value: " + dict[type]);
 			}
+			Dictionary<string, double> dictCopy = dict;
 
 			while (dataReader.Read())
 			{
-				//current val				=		(current val				+		new val)		/	2	
-				dict[(string)dataReader[1]] = ((dict[(string)dataReader[1]] + (double)dataReader[2]) / 2);
+				if (dict.ContainsKey((string)dataReader[1]) == false)
+				{
+					dict[(string)dataReader[1]] = ((double)dataReader[2] / 2);
+					Console.WriteLine("New Key - " + "UserID: " + (int)dataReader[0] + " Key: " + (string)dataReader[1] + " Value: " + (double)dataReader[2] + " Used val: " + dict[(string)dataReader[1]].ToString());
+				}
+				else
+				{
+					double currentVal = dict[(string)dataReader[1]];
+					
+					//current val				=		(current val				+		new val)		/	2	
+					dict[(string)dataReader[1]] = ((currentVal + (double)dataReader[2]) / 2);
+					Console.WriteLine("Existing Key - " + "UserID: " + (int)dataReader[0] + " Key: " + (string)dataReader[1] + " Value: " + dict[(string)dataReader[1]].ToString());
+				}
 			}
+			
 
-			/* Not needed for current implementation
 
-			//Normalize dictionary
+			// duct tape solution to somthing that could be done better.
+			// since double is not perfect it does not sum directly to 100
+			//-----------------
 			double sum = dict.Sum(x => x.Value);
 			double sumAvg = (100 / sum);
 
@@ -172,19 +200,23 @@ namespace RecommenderService.Classes
 
 				dict[kvp.Key] = val;
 			}
-			*/
+			//------------------
 
 			dataReader.Close();
 			command.Dispose();
+			connection.Close();
 
 			return dict;
 		}
 
 		public List<int> GetSimilarUsers(List<string> initial_types)
 		{
-			int val1 = 15;
+			connection.Open();
+
+
+			int val1 = 10;
 			int val2 = 40; // used to stop outliers.
-			int countNumber = 4; //amount of tags which other users have to have within the limit
+			int countNumber = 3; //amount of tags which other users have to have within the limit
 
 			//Create SQL list of the initial_types
 			StringBuilder sb = new StringBuilder("");
@@ -218,7 +250,7 @@ namespace RecommenderService.Classes
 											$") " +
 										$"GROUP BY userid" +
 										$") AS temp " +
-									$"WHERE count = {countNumber}"; // "count" is the number of types which are the same as those in initial_types.
+									$"WHERE count >= {countNumber}"; // "count" is the number of types which are the same as those in initial_types.
 
 
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
@@ -230,9 +262,11 @@ namespace RecommenderService.Classes
 			while (dataReader.Read())
 			{
 				similarUsersList.Add((int)dataReader[0]);
+				Console.WriteLine("Got user with ID: " + (int)dataReader[0]);
 			}
 			dataReader.Close();
 			command.Dispose();
+			connection.Close();
 
 			return similarUsersList;
 		}
@@ -360,5 +394,27 @@ namespace RecommenderService.Classes
 			connection.Close();
 			return ErrorStatus.Success;
 		}
+
+		public void ClearDatabase()
+		{
+			connection.Open();
+			string SQLstatement = "DELETE FROM interest";
+
+			//Execute SQL
+			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
+
+			Console.WriteLine("STRING: " + SQLstatement);
+
+			command.CommandType = CommandType.Text;
+			adapter.InsertCommand = command;
+			adapter.InsertCommand.ExecuteNonQuery();
+
+			command.Dispose();
+			adapter.Dispose();
+
+			connection.Close();
+		}//for testing only. Dont use in production
+
 	}
 }

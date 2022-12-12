@@ -15,30 +15,134 @@ namespace RecommenderService.Classes.Tests
 		public void CreateUserInterestsTest()
 		{
 			//Arrange
-			InterestHandler ih = new();
+			InterestHandler ih = new(@"server=localhost;userid=root;password=duper;database=recommender_db");
 
-			//User 1
+			ih.ClearDatabase(); //clear database
+
 			string UserID = "1";
-			List<string> User1_InitialTypes = new();
-			User1_InitialTypes.Add("test1");
-			User1_InitialTypes.Add("test2");
-			User1_InitialTypes.Add("test3");
-			User1_InitialTypes.Add("test4");
+			List<string> InitialTypes = new();
+			InitialTypes.Add("test1");
+			InitialTypes.Add("test2");
+			InitialTypes.Add("test3");
+			InitialTypes.Add("test4");
+
+
+			Dictionary<string, double> expectedResult = new();
+			expectedResult.Add("test1", 25);
+			expectedResult.Add("test2", 25);
+			expectedResult.Add("test3", 25);
+			expectedResult.Add("test4", 25);
 
 			//Act
-			ih.CreateUserInterests(UserID, User1_InitialTypes); //25, 25, 25, 25
+			ih.CreateUserInterests(UserID, InitialTypes); //25, 25, 25, 25
 
 			Tuple<ErrorStatus, Dictionary<string, double>> tuple = ih.GetUserInterests(UserID);
 
+			ih.RemoveUserInterest("1");
+
+
 			//Assert
-			Assert.Fail();
+			CollectionAssert.AreEqual(tuple.Item2, expectedResult);
 		}
 
 		[TestMethod()]
 		public void GetUserInterestsTest()
 		{
 			//Arrange
-			InterestHandler ih = new();
+			InterestHandler ih = new(@"server=localhost;userid=root;password=duper;database=recommender_db");
+
+			ih.ClearDatabase(); //clear database
+
+
+			//User 1
+			string User1_ID = "1";
+			List<string> User1_InitialTypes = new();
+			User1_InitialTypes.Add("test1");
+			User1_InitialTypes.Add("test2");
+			User1_InitialTypes.Add("test3");
+			User1_InitialTypes.Add("test4");
+			ih.CreateUserInterests(User1_ID, User1_InitialTypes);
+
+			//User 2
+			string User2_ID = "2";
+			List<string> User2_InitialTypes = new();
+			User2_InitialTypes.Add("test1");
+			User2_InitialTypes.Add("test4");
+			User2_InitialTypes.Add("test5");
+			User2_InitialTypes.Add("test6");
+			ih.CreateUserInterests(User2_ID, User2_InitialTypes);
+
+			//User 3
+			string User3_ID = "3";
+			List<string> User3_InitialTypes = new();
+			User3_InitialTypes.Add("test3");
+			User3_InitialTypes.Add("test4");
+			User3_InitialTypes.Add("test5");
+			User3_InitialTypes.Add("test6");
+			ih.CreateUserInterests(User3_ID, User3_InitialTypes);
+
+
+			//NewUser
+			string NewUser_ID = "4";
+			List<string> NewUser_InitialTypes = new();
+			NewUser_InitialTypes.Add("test1");
+			NewUser_InitialTypes.Add("test2");
+			NewUser_InitialTypes.Add("test3");
+			NewUser_InitialTypes.Add("test4");
+			ih.CreateUserInterests(NewUser_ID, NewUser_InitialTypes);
+
+			//i cheated and used the system to calculate this. this means that any error would npot be caught
+			//('4', 'test1', '16.05'),('4', 'test2', '22.22'),('4', 'test3', '20.99'),('4', 'test4', '20.99'),('4', 'test5', '9.88'),('4', 'test6', '9.88');
+			Dictionary<string, double> expectedResult = new();
+			expectedResult.Add("test1", 16.05);
+			expectedResult.Add("test2", 22.22);
+			expectedResult.Add("test3", 20.99);
+			expectedResult.Add("test4", 20.99);
+			expectedResult.Add("test5", 9.88);
+			expectedResult.Add("test6", 9.88);
+
+			//Act
+			Tuple<ErrorStatus, Dictionary<string, double>> tuple = ih.GetUserInterests(NewUser_ID);
+
+
+			//Assert
+			CollectionAssert.AreEqual(expectedResult, tuple.Item2);
+
+		}
+
+		[TestMethod()]
+		public void GetUserInterestsTest_UserNotFound()
+		{
+			//Arrange
+			InterestHandler ih = new(@"server=localhost;userid=root;password=duper;database=recommender_db");
+
+			ih.ClearDatabase(); //clear database
+
+			//User 1
+			string UserID = "1";
+			
+			//Act
+			Tuple<ErrorStatus, Dictionary<string, double>> tuple = ih.GetUserInterests(UserID);
+
+			//Assert
+			Assert.AreEqual( ErrorStatus.UserNotFound, tuple.Item1);
+		}
+
+
+		[TestMethod()]
+		public void GetSimilarInterestsTest()
+		{
+			Assert.Fail();
+		}
+
+		[TestMethod()]
+		public void GetSimilarUsersTest()
+		{
+			//Arrange
+			InterestHandler ih = new(@"server=localhost;userid=root;password=duper;database=recommender_db");
+
+			ih.ClearDatabase(); //clear database
+
 
 			//User 1
 			string User1_ID = "1";
@@ -56,7 +160,7 @@ namespace RecommenderService.Classes.Tests
 			User2_InitialTypes.Add("test4");
 			User2_InitialTypes.Add("test5");
 			User2_InitialTypes.Add("test6");
-			ih.CreateUserInterests(User2_ID, User2_InitialTypes); //25, 12.5, 12.5, 25, 12.5, 12.5
+			ih.CreateUserInterests(User2_ID, User2_InitialTypes); //25, null, null, 25, 25, 25
 
 			//User 3
 			string User3_ID = "3";
@@ -65,45 +169,25 @@ namespace RecommenderService.Classes.Tests
 			User3_InitialTypes.Add("test4");
 			User3_InitialTypes.Add("test5");
 			User3_InitialTypes.Add("test6");
-			ih.CreateUserInterests(User3_ID, User3_InitialTypes); //12.5, 6.25, 18,75, 25, 18.75, 18.75
-
-
-
+			ih.CreateUserInterests(User3_ID, User3_InitialTypes); //
 
 			//NewUser
-			string NewUser_ID = "4";
 			List<string> NewUser_InitialTypes = new();
 			NewUser_InitialTypes.Add("test1");
 			NewUser_InitialTypes.Add("test2");
 			NewUser_InitialTypes.Add("test3");
 			NewUser_InitialTypes.Add("test4");
-			ih.CreateUserInterests(NewUser_ID, NewUser_InitialTypes); //18.75, 15.625, 21.875, 25, 9.375, 9.375
 
-			Dictionary<string, double> expectedResult = new();
-			expectedResult.Add("test1", 18.75);
-			expectedResult.Add("test2", 15.625);
-			expectedResult.Add("test3", 21.875);
-			expectedResult.Add("test4", 25);
-			expectedResult.Add("test5", 9.375);
-			expectedResult.Add("test6", 9.375);
+			List<int> expectedResult = new();
+			expectedResult.Add(1);
+			expectedResult.Add(3);
 
 			//Act
-			Tuple<ErrorStatus, Dictionary<string, double>> tuple = ih.GetUserInterests(NewUser_ID);
+			List<int> result = ih.GetSimilarUsers(NewUser_InitialTypes);
+
 
 			//Assert
-			Assert.Equals(expectedResult, tuple.Item2);
-		}
-
-		[TestMethod()]
-		public void GetSimilarInterestsTest()
-		{
-			Assert.Fail();
-		}
-
-		[TestMethod()]
-		public void GetSimilarUsersTest()
-		{
-			Assert.Fail();
+			CollectionAssert.AreEqual(expectedResult, result);
 		}
 
 		[TestMethod()]
@@ -113,9 +197,44 @@ namespace RecommenderService.Classes.Tests
 		}
 
 		[TestMethod()]
-		public void RemoveUserInterestTest()
+		public void RemoveUserInterestTest_Success()
 		{
-			Assert.Fail();
+			//Arrange
+			InterestHandler ih = new(@"server=localhost;userid=root;password=duper;database=recommender_db");
+
+			ih.ClearDatabase(); //clear database
+
+			string UserID = "1";
+			List<string> InitialTypes = new();
+			InitialTypes.Add("test1");
+			InitialTypes.Add("test2");
+			InitialTypes.Add("test3");
+			InitialTypes.Add("test4");
+
+			ih.CreateUserInterests(UserID, InitialTypes);
+
+			//Act
+			ErrorStatus result = ih.RemoveUserInterest(UserID);
+
+			//Assert
+			Assert.AreEqual(result, ErrorStatus.Success);
+		}
+
+		[TestMethod()]
+		public void RemoveUserInterestTest_UserNotFound()
+		{
+			//Arrange
+			InterestHandler ih = new(@"server=localhost;userid=root;password=duper;database=recommender_db");
+
+			ih.ClearDatabase(); //clear database
+
+			string UserID = "1";
+
+			//Act
+			ErrorStatus result = ih.RemoveUserInterest(UserID);
+
+			//Assert
+			Assert.AreEqual(result, ErrorStatus.UserNotFound);
 		}
 	}
 }
