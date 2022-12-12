@@ -156,8 +156,23 @@ namespace RecommenderService.Classes
 
 			while (dataReader.Read())
 			{
-				dict[(string)dataReader[1]] = (dict[(string)dataReader[1]] + ((double)dataReader[2] / (similarUsersList.Count + 1)));
+				//current val				=		(current val				+		new val)		/	2	
+				dict[(string)dataReader[1]] = ((dict[(string)dataReader[1]] + (double)dataReader[2]) / 2);
 			}
+
+			/* Not needed for current implementation
+
+			//Normalize dictionary
+			double sum = dict.Sum(x => x.Value);
+			double sumAvg = (100 / sum);
+
+			foreach (KeyValuePair<string, double> kvp in dict)
+			{
+				double val = kvp.Value * sumAvg;
+
+				dict[kvp.Key] = val;
+			}
+			*/
 
 			dataReader.Close();
 			command.Dispose();
@@ -285,7 +300,6 @@ namespace RecommenderService.Classes
 				double val = kvp.Value * sumAvg;
 				
 				dict[kvp.Key] = val;
-
 			}
 
 
