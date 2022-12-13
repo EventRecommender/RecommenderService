@@ -15,17 +15,16 @@ namespace RecommenderService.Classes
 	public class RecommenderHandler
 	{
 		string connectionString { get; set; }
-		MySqlConnection connection { get; set; }
 
 
 		public RecommenderHandler()
 		{
 			connectionString = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
-			connection = new MySqlConnection(connectionString);
 		}
 
 		public Tuple<ErrorStatus, Dictionary<string, int>> GetRecommendation(string User_ID)
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 
 
@@ -70,7 +69,7 @@ namespace RecommenderService.Classes
 
 		public ErrorStatus CalculateRecommendation(string User_ID, int amountOfRecommendations = 10)
 		{
-
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 			//Check if user exist.
 			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "recommendation", connection);
@@ -155,6 +154,7 @@ namespace RecommenderService.Classes
 
 		public ErrorStatus RemoveRecommendation(string User_ID)
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 			//Check if user exist
 			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "recommendation", connection);
@@ -183,7 +183,6 @@ namespace RecommenderService.Classes
 			connection.Close();
 			return ErrorStatus.Success;
 		}
-
 
 	}
 }

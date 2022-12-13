@@ -16,23 +16,20 @@ namespace RecommenderService.Classes
 	public class InterestHandler
 	{
 		string connectionString { get; set; }
-		MySqlConnection connection { get; set; }
-		
 
 		public InterestHandler()
 		{
 			connectionString = @"server=mysql_recommender;userid=root;password=duper;database=recommender_db";
-			connection = new MySqlConnection(connectionString);
 		}
 
 		public InterestHandler(string _connectionString)
 		{
 			connectionString = _connectionString;
-			connection = new MySqlConnection(connectionString);
 		}
 
 		public Tuple<ErrorStatus,Dictionary<string, double>> GetUserInterests(string User_ID)
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 
 			//Check if user exist:
@@ -69,6 +66,7 @@ namespace RecommenderService.Classes
 
 		public ErrorStatus CreateUserInterests(string user_ID, List<string> initial_types)
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 
 			//Check if user exist:
@@ -124,7 +122,7 @@ namespace RecommenderService.Classes
 
 		public Dictionary<string, double> GetSimilarInterests(List<string> initial_types)
 		{
-			
+			MySqlConnection connection = new(connectionString);
 			//Get similar users:
 			List<int> similarUsersList = GetSimilarUsers(initial_types);
 
@@ -206,6 +204,7 @@ namespace RecommenderService.Classes
 
 		public List<int> GetSimilarUsers(List<string> initial_types)
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 
 
@@ -267,6 +266,7 @@ namespace RecommenderService.Classes
 
 		public ErrorStatus UpdateUserInterests(string User_ID, List<string> activity_types, UpdateType Update_type)
 		{
+			MySqlConnection connection = new(connectionString);
 			//Determine value to update with
 			int updateVal = 0;
 
@@ -379,6 +379,7 @@ namespace RecommenderService.Classes
 
 		public ErrorStatus RemoveUserInterest(string User_ID)
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 			//Check if user exist
 			ErrorStatus userCheck = ServiceTools.CheckIfUserExist(User_ID, "interest", connection);
@@ -410,6 +411,7 @@ namespace RecommenderService.Classes
 
 		public void ClearDatabase()
 		{
+			MySqlConnection connection = new(connectionString);
 			connection.Open();
 			string SQLstatement = "DELETE FROM interest";
 

@@ -5,6 +5,10 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+InterestHandler interestHandler = new();
+RecommenderHandler recommenderHandler = new();
+
 // Add services to the container.
 
 var app = builder.Build();
@@ -15,9 +19,7 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 {
 	try
 	{
-		RecommenderHandler handler = new();
-
-		ErrorStatus result = handler.CalculateRecommendation(userid.ToLower());
+		ErrorStatus result = recommenderHandler.CalculateRecommendation(userid.ToLower());
 
 		if (result == ErrorStatus.Success)
 		{
@@ -47,9 +49,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 {
 	try
 	{
-		RecommenderHandler handler = new();
-
-		var result = handler.GetRecommendation(userid.ToLower());
+		var result = recommenderHandler.GetRecommendation(userid.ToLower());
 
 		if (result.Item1 == ErrorStatus.Success)
 		{
@@ -83,9 +83,7 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 {
 	try
 	{
-		InterestHandler handler = new InterestHandler();
-
-		ErrorStatus result = handler.RemoveUserInterest(userid.ToLower());
+		ErrorStatus result = interestHandler.RemoveUserInterest(userid.ToLower());
 
 		if (result == ErrorStatus.Success)
 		{
@@ -116,8 +114,7 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 	try
 	{
 		List<String> types = JsonSerializer.Deserialize<List<String>>(initial_types.ToLower());
-		InterestHandler handler = new InterestHandler();
-		ErrorStatus result = handler.CreateUserInterests(userid.ToLower(), types);
+		ErrorStatus result = interestHandler.CreateUserInterests(userid.ToLower(), types);
 
 		if (result == ErrorStatus.Success)
 		{
@@ -149,9 +146,7 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 	{
 		List<string> types = JsonSerializer.Deserialize<List<string>>(activity_types.ToLower());
 
-		InterestHandler handler = new InterestHandler();
-
-		ErrorStatus result = handler.UpdateUserInterests(userid.ToLower(), types, update_type);
+		ErrorStatus result = interestHandler.UpdateUserInterests(userid.ToLower(), types, update_type);
 
 		if (result == ErrorStatus.Success)
 		{
