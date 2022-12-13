@@ -17,7 +17,7 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 	{
 		RecommenderHandler handler = new();
 
-		ErrorStatus result = handler.CalculateRecommendation(userid);
+		ErrorStatus result = handler.CalculateRecommendation(userid.ToLower());
 
 		if (result == ErrorStatus.Success)
 		{
@@ -49,7 +49,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 	{
 		RecommenderHandler handler = new();
 
-		var result = handler.GetRecommendation(userid);
+		var result = handler.GetRecommendation(userid.ToLower());
 
 		if (result.Item1 == ErrorStatus.Success)
 		{
@@ -85,7 +85,7 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 	{
 		InterestHandler handler = new InterestHandler();
 
-		ErrorStatus result = handler.RemoveUserInterest(userid);
+		ErrorStatus result = handler.RemoveUserInterest(userid.ToLower());
 
 		if (result == ErrorStatus.Success)
 		{
@@ -115,9 +115,9 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 {
 	try
 	{
-		List<String> types = JsonSerializer.Deserialize<List<String>>(initial_types);
+		List<String> types = JsonSerializer.Deserialize<List<String>>(initial_types.ToLower());
 		InterestHandler handler = new InterestHandler();
-		ErrorStatus result = handler.CreateUserInterests(userid, types);
+		ErrorStatus result = handler.CreateUserInterests(userid.ToLower(), types);
 
 		if (result == ErrorStatus.Success)
 		{
@@ -147,11 +147,11 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 {
 	try
 	{
-		List<string> types = JsonSerializer.Deserialize<List<string>>(activity_types);
+		List<string> types = JsonSerializer.Deserialize<List<string>>(activity_types.ToLower());
 
 		InterestHandler handler = new InterestHandler();
 
-		ErrorStatus result = handler.UpdateUserInterests(userid, types, update_type);
+		ErrorStatus result = handler.UpdateUserInterests(userid.ToLower(), types, update_type);
 
 		if (result == ErrorStatus.Success)
 		{
