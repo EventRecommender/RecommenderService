@@ -92,7 +92,6 @@ namespace RecommenderService.Classes
 			foreach(KeyValuePair<string, double> kvp in interest)
 			{
 				rows.Add(string.Format("('{0}', '{1}', '{2}')", MySqlHelper.EscapeString(user_ID), MySqlHelper.EscapeString(kvp.Key), MySqlHelper.EscapeString(Math.Round(kvp.Value, 3).ToString("n", CultureInfo.InvariantCulture))));
-				Console.WriteLine("Added to DB - " + "UserID: " + user_ID + " Key: " + kvp.Key + " Value: " + kvp.Value);
 			}
 			sb.Append(string.Join(",", rows));
 			sb.Append(";");
@@ -110,7 +109,6 @@ namespace RecommenderService.Classes
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-			Console.WriteLine("STRING: " + SQLstatement);
 
 			command.CommandType = CommandType.Text;
 			adapter.InsertCommand = command;
@@ -165,7 +163,6 @@ namespace RecommenderService.Classes
 			foreach (string type in initial_types)
 			{
 				dict[type] = ((double)100 / initial_types.Count);
-				Console.WriteLine("Self - Key: " + type + " Value: " + dict[type]);
 			}
 			Dictionary<string, double> dictCopy = dict;
 
@@ -174,7 +171,6 @@ namespace RecommenderService.Classes
 				if (dict.ContainsKey((string)dataReader[1]) == false)
 				{
 					dict[(string)dataReader[1]] = ((double)dataReader[2] / 2);
-					Console.WriteLine("New Key - " + "UserID: " + (int)dataReader[0] + " Key: " + (string)dataReader[1] + " Value: " + (double)dataReader[2] + " Used val: " + dict[(string)dataReader[1]].ToString());
 				}
 				else
 				{
@@ -182,7 +178,6 @@ namespace RecommenderService.Classes
 					
 					//current val				=		(current val				+		new val)		/	2	
 					dict[(string)dataReader[1]] = ((currentVal + (double)dataReader[2]) / 2);
-					Console.WriteLine("Existing Key - " + "UserID: " + (int)dataReader[0] + " Key: " + (string)dataReader[1] + " Value: " + dict[(string)dataReader[1]].ToString());
 				}
 			}
 			
@@ -262,7 +257,6 @@ namespace RecommenderService.Classes
 			while (dataReader.Read())
 			{
 				similarUsersList.Add((int)dataReader[0]);
-				Console.WriteLine("Got user with ID: " + (int)dataReader[0]);
 			}
 			dataReader.Close();
 			command.Dispose();
@@ -423,7 +417,6 @@ namespace RecommenderService.Classes
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-			Console.WriteLine("STRING: " + SQLstatement);
 
 			command.CommandType = CommandType.Text;
 			adapter.InsertCommand = command;
