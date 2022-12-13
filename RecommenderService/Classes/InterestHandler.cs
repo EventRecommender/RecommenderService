@@ -312,14 +312,33 @@ namespace RecommenderService.Classes
 			{
 				if (Update_type == UpdateType.Like)
 				{
-					dict[tag] = dict[tag] + updateVal;
-				}
-				else if (Update_type == UpdateType.Dislike)
-				{
-					if (dict[tag] > Math.Abs(updateVal))
+					if (dict.ContainsKey(tag) == false)
+					{
+						dict[tag] = updateVal;
+					}
+					else
 					{
 						dict[tag] = dict[tag] + updateVal;
 					}
+				}
+				else if (Update_type == UpdateType.Dislike)
+				{
+					if (dict.ContainsKey(tag) == false)
+					{
+						if (dict[tag] > Math.Abs(updateVal))
+						{
+							dict[tag] = updateVal;
+						}
+					}
+					else
+					{
+						if (dict[tag] > Math.Abs(updateVal))
+						{
+							dict[tag] = dict[tag] + updateVal;
+						}
+					}
+
+					
 				}
 				
 			}
