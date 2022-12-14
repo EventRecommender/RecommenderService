@@ -66,6 +66,12 @@ namespace RecommenderService.Classes
 				dataReader.Dispose();
 				command.Dispose();
 				connection.Close();
+
+				if (dict.Count < 1)
+				{
+					return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.resultEmpty, dict);
+				}
+
 				return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.Success, dict);
 			}
 			catch (MySqlException e)

@@ -64,7 +64,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.UserNotFound)
 		{
-			return Results.BadRequest("User not found");
+			return Results.BadRequest("User not found - Userid: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.QueryStringEmpty)
 		{
@@ -72,7 +72,11 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.DataOutdated)
 		{
-			return Results.BadRequest("Recommendation out of date");
+			return Results.BadRequest("Recommendation out of date for User: " + userid);
+		}
+		else if (result.Item1 == ErrorStatus.resultEmpty)
+		{
+			return Results.Problem("Error occurred while retrieving recommendation from User: " + userid);
 		}
 		else
 		{

@@ -15,6 +15,7 @@
 		UserCheckError,
 		QueryStringEmpty,
 		None,
-		DataOutdated
+		DataOutdated,
+		resultEmpty
 	}
 }
