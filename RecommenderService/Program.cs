@@ -116,7 +116,7 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
-			return Results.Problem("User not found - Userid: " + userid);
+			return Results.BadRequest("User not found - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
