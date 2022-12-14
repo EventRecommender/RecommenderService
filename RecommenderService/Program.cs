@@ -29,7 +29,7 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
 		{
-			Console.WriteLine("User already exist - UserID: " + userid);
+			Console.WriteLine("Calc: User already exist - UserID: " + userid);
 			return Results.BadRequest("User already exist - UserID: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
@@ -39,19 +39,19 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 		else
 		{
 			//Unhandled Result
-			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
+			Console.WriteLine("Calc: Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - UserID: " + userid + "  result: " + result);
 		}
 	}
 	catch (ConnectionException e)
 	{
 		MySqlConnection.ClearPool(e.con);
-		Console.WriteLine("Exception: " + e.Message);
+		Console.WriteLine("Calc: Exception: " + e.Message);
 		return Results.Problem("Unhandled Exception occured with MySql - UserID: " + userid);
 	}
 	catch (Exception e)
 	{
-		Console.WriteLine("Exception: " + e.Message);
+		Console.WriteLine("Calc: Exception: " + e.Message);
 		return Results.Problem("Unhandled exception occured - UserID: " + userid);
 	}
 });
@@ -68,7 +68,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.UserNotFound)
 		{
-			Console.WriteLine("User not found - Userid: " + userid);
+			Console.WriteLine("Get: User not found - Userid: " + userid);
 			return Results.BadRequest("User not found - Userid: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.QueryStringEmpty)
@@ -77,7 +77,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.DataOutdated)
 		{
-			Console.WriteLine("Recommendation out of date for User: " + userid);
+			Console.WriteLine("Get: Recommendation out of date for User: " + userid);
 			return Results.BadRequest("Recommendation out of date for User: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.resultEmpty)
@@ -87,19 +87,19 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		else
 		{
 			//Unhandled Result
-			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
+			Console.WriteLine("Get: Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - UserID: " + userid + "   result: " + result);
 		}
 	}
 	catch (ConnectionException e)
 	{
 		MySqlConnection.ClearPool(e.con);
-		Console.WriteLine("Exception: " + e.Message);
+		Console.WriteLine("Get: Exception: " + e.Message);
 		return Results.Problem("Unhandled Exception occured with MySql - UserID: " + userid);
 	}
 	catch (Exception ex)
 	{
-		Console.WriteLine("Exception: " + ex.Message);
+		Console.WriteLine("Get: Exception: " + ex.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
@@ -125,13 +125,13 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 		else
 		{
 			//Unhandled Result
-			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
+			Console.WriteLine("Remove: Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - Userid: " + userid + "   result: " + result);
 		}
 	}
 	catch (Exception ex)
 	{
-		Console.WriteLine("Exception: " + ex.Message);
+		Console.WriteLine("Remove: Exception: " + ex.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
