@@ -111,16 +111,16 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
-			return Results.Problem("User not found");
+			return Results.Problem("User not found - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
-			return Results.Problem("The query string was empty");
+			return Results.Problem("The query string was empty - Userid: " + userid);
 		}
 		else
 		{
 			//Unhandled Result
-			return Results.BadRequest("Unhandled result");
+			return Results.BadRequest("Unhandled result - Userid: " + userid + "   result: " + result);
 		}
 	}
 	catch (Exception ex)
@@ -143,16 +143,16 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
 		{
-			return Results.BadRequest("User already exist");
+			return Results.BadRequest("User already exist - UserID: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
-			return Results.Problem("The query string was empty");
+			return Results.Problem("The query string was empty - UserID: " + userid);
 		}
 		else
 		{
 			//Unhandled Result
-			return Results.BadRequest("Unhandled result");
+			return Results.BadRequest("Unhandled result - UserID: " + userid + "   result: " + result);
 		}
 	}
 	catch (Exception ex)
@@ -176,16 +176,16 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
-			return Results.BadRequest("User does not exist");
+			return Results.BadRequest("User does not exist - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
-			return Results.Problem("The query string was empty");
+			return Results.Problem("The query string was empty - Userid: " + userid);
 		}
 		else
 		{
 			//Unhandled Result
-			return Results.BadRequest("Unhandled result");
+			return Results.BadRequest("Unhandled result - Userid: " + userid);
 		}
 	}
 	catch (Exception ex)
