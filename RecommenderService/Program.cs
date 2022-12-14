@@ -34,6 +34,7 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
+			Console.WriteLine("Calc: The query string was empty - UserID: " + userid);
 			return Results.Problem("The query string was empty - UserID: " + userid);
 		}
 		else
@@ -73,6 +74,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.QueryStringEmpty)
 		{
+			Console.WriteLine("Get: The query string was empty - UserID: " + userid);
 			return Results.Problem("The query string was empty - UserID: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.DataOutdated)
@@ -82,6 +84,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.resultEmpty)
 		{
+			Console.WriteLine("Get: Error occurred while retrieving recommendation from User: " + userid);
 			return Results.Problem("Error occurred while retrieving recommendation from User: " + userid);
 		}
 		else
@@ -116,10 +119,12 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
+			Console.WriteLine("Remove: User not found - Userid: " + userid);
 			return Results.BadRequest("User not found - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
+			Console.WriteLine("Remove: The query string was empty - Userid: " + userid);
 			return Results.Problem("The query string was empty - Userid: " + userid);
 		}
 		else
@@ -149,23 +154,24 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
 		{
-			Console.WriteLine("User already exist - UserID: " + userid);
+			Console.WriteLine("CalcUser: User already exist - UserID: " + userid);
 			return Results.BadRequest("User already exist - UserID: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
+			Console.WriteLine("CalcUser: The query string was empty - UserID: " + userid);
 			return Results.Problem("The query string was empty - UserID: " + userid);
 		}
 		else
 		{
-			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
+			Console.WriteLine("CalcUser: Unhandled result - UserID: " + userid + "   result: " + result);
 			//Unhandled Result
 			return Results.BadRequest("Unhandled result - UserID: " + userid + "   result: " + result);
 		}
 	}
 	catch (Exception ex)
 	{
-		Console.WriteLine("Exception: " + ex.Message);
+		Console.WriteLine("CalcUser: Exception: " + ex.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
@@ -184,23 +190,24 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
-			Console.WriteLine("User does not exist - Userid: " + userid);
+			Console.WriteLine("UpdateUser: User does not exist - Userid: " + userid);
 			return Results.BadRequest("User does not exist - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
+			Console.WriteLine("UpdateUser: The query string was empty - Userid: " + userid);
 			return Results.Problem("The query string was empty - Userid: " + userid);
 		}
 		else
 		{
 			//Unhandled Result
-			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
+			Console.WriteLine("UpdateUser: Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - Userid: " + userid);
 		}
 	}
 	catch (Exception ex)
 	{
-		Console.WriteLine("Exception: " + ex.Message);
+		Console.WriteLine("UpdateUser: Exception: " + ex.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
