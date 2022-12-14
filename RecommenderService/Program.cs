@@ -25,6 +25,7 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 
 		if (result == ErrorStatus.Success)
 		{
+			Console.WriteLine("Calculated Recommendation for user: " + userid);
 			return Results.Ok();
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
