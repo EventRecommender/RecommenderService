@@ -32,11 +32,23 @@ namespace RecommenderService.Classes
 				}
 				else if (idCount < 0)
 				{
+					dataReader.Close();
+					command.Dispose();
 					return ErrorStatus.UserCheckError; //Could not check
 				}
-				dataReader.Close();
-				command.Dispose();
-				return ErrorStatus.UserNotFound; //No user exist
+				else if (idCount == 0)
+				{
+					dataReader.Close();
+					command.Dispose();
+					return ErrorStatus.UserNotFound; //No user exist
+				}
+				else
+				{
+					dataReader.Close();
+					command.Dispose();
+					return ErrorStatus.Unknown;
+				}
+				
 			}
 			catch (FormatException)
 			{

@@ -16,6 +16,7 @@
 		QueryStringEmpty,
 		None,
 		DataOutdated,
-		resultEmpty
+		resultEmpty,
+		Unknown
 	}
 }
