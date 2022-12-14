@@ -29,26 +29,26 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
 		{
-			return Results.Problem("User already exist");
+			return Results.Problem("User already exist - UserID: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
-			return Results.Problem("The query string was empty");
+			return Results.Problem("The query string was empty - UserID: " + userid);
 		}
 		else
 		{
 			//Unhandled Result
-			return Results.BadRequest("Unhandled result");
+			return Results.BadRequest("Unhandled result - UserID: " + userid + "  result: " + result);
 		}
 	}
 	catch (ConnectionException e)
 	{
 		MySqlConnection.ClearPool(e.con);
-		return Results.Problem("Unhandled Exception occured with MySql");
+		return Results.Problem("Unhandled Exception occured with MySql - UserID: " + userid);
 	}
 	catch (Exception e)
 	{
-		return Results.Problem("Unhandled exception occured");
+		return Results.Problem("Unhandled exception occured - UserID: " + userid);
 	}
 });
 
@@ -68,7 +68,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.QueryStringEmpty)
 		{
-			return Results.Problem("The query string was empty");
+			return Results.Problem("The query string was empty - UserID: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.DataOutdated)
 		{
@@ -81,13 +81,13 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		else
 		{
 			//Unhandled Result
-			return Results.BadRequest("Unhandled result");
+			return Results.BadRequest("Unhandled result - UserID: " + userid + "   result: " + result);
 		}
 	}
 	catch (ConnectionException e)
 	{
 		MySqlConnection.ClearPool(e.con);
-		return Results.Problem("Unhandled Exception occured with MySql");
+		return Results.Problem("Unhandled Exception occured with MySql - UserID: " + userid);
 	}
 	catch (Exception ex)
 	{
