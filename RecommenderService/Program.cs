@@ -190,7 +190,7 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
-			//Console.WriteLine("UpdateUser: User does not exist - Userid: " + userid);
+			Console.WriteLine("UpdateUser: User does not exist - Userid: " + userid);
 			return Results.BadRequest("User does not exist - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
