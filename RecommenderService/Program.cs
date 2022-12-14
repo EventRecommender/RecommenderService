@@ -1,7 +1,9 @@
 using RecommenderService.Classes;
+using RecommenderService.Exceptions;
 using MySql.Data.MySqlClient;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,9 +41,14 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 			return Results.BadRequest("Unhandled result");
 		}
 	}
-	catch (Exception ex)
+	catch (ConnectionException e)
 	{
-		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
+		MySqlConnection.ClearPool(e.con);
+		return Results.Problem("Unhandled Exception occured with MySql");
+	}
+	catch (Exception e)
+	{
+		return Results.Problem("Unhandled exception occured");
 	}
 });
 
@@ -72,6 +79,11 @@ app.MapGet("/GetRecommendation", (string userid) =>
 			//Unhandled Result
 			return Results.BadRequest("Unhandled result");
 		}
+	}
+	catch (ConnectionException e)
+	{
+		MySqlConnection.ClearPool(e.con);
+		return Results.Problem("Unhandled Exception occured with MySql");
 	}
 	catch (Exception ex)
 	{

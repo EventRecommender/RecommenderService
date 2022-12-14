@@ -38,8 +38,6 @@ namespace RecommenderService.Classes.Tests
 
 			Tuple<ErrorStatus, Dictionary<string, double>> tuple = ih.GetUserInterests(UserID);
 
-			ih.RemoveUserInterest("1");
-
 
 			//Assert
 			CollectionAssert.AreEqual(tuple.Item2, expectedResult);

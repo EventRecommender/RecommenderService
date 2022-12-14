@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using RecommenderService.Exceptions;
+
 
 namespace RecommenderService.Classes
 {
@@ -35,7 +37,6 @@ namespace RecommenderService.Classes
 				connection.Close();
 				return new Tuple<ErrorStatus, Dictionary<string, int>>(userCheck, new Dictionary<string, int>());
 			}
-
 			//Get recommendation from database
 			string SQLstatement =	$"Select * " +
 									$"FROM recommendation " +
@@ -44,27 +45,37 @@ namespace RecommenderService.Classes
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataReader dataReader = command.ExecuteReader();
 
-
-			//populate dict with the data
-			Dictionary<string, int> dict = new Dictionary<string, int>();
-
-			DateTime currentDate = DateTime.Now;
-			DateTime date;
-			while (dataReader.Read())
+			try
 			{
-				date = (DateTime)dataReader[3];
-				if ((date.Year < currentDate.Year) || (date.DayOfYear < currentDate.DayOfYear)) //check if data is out of date
+				//populate dict with the data
+				Dictionary<string, int> dict = new Dictionary<string, int>();
+
+				DateTime currentDate = DateTime.Now;
+				DateTime date;
+				while (dataReader.Read())
 				{
-					connection.Close();
-					return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.DataOutdated, new Dictionary<string, int>());
-				} 
-				dict[(string)dataReader[1]] = (int)dataReader[2];
+					date = (DateTime)dataReader[3];
+					if ((date.Year < currentDate.Year) || (date.DayOfYear < currentDate.DayOfYear)) //check if data is out of date
+					{
+						connection.Close();
+						return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.DataOutdated, new Dictionary<string, int>());
+					}
+					dict[(string)dataReader[1]] = (int)dataReader[2];
+				}
+
+				dataReader.Dispose();
+				command.Dispose();
+				connection.Close();
+				return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.Success, dict);
 			}
-
-
-
-			connection.Close();
-			return new Tuple<ErrorStatus, Dictionary<string, int>>(ErrorStatus.Success, dict);
+			catch (MySqlException e)
+			{
+				Console.WriteLine("Exception: " + e + "   Message: " + e.Message + "   Stacktrace: " + e.StackTrace);
+				dataReader.Dispose();
+				command.Dispose();
+				connection.Close();
+				throw new ConnectionException(e.Message, connection);
+			}
 		}
 
 		public ErrorStatus CalculateRecommendation(string User_ID, int amountOfRecommendations = 10)
@@ -141,15 +152,32 @@ namespace RecommenderService.Classes
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
 			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-			command.CommandType = CommandType.Text;
-			adapter.InsertCommand = command;
-			adapter.InsertCommand.ExecuteNonQuery();
+			try
+			{
+				command.CommandType = CommandType.Text;
+				adapter.InsertCommand = command;
+				adapter.InsertCommand.ExecuteNonQuery();
 
-			command.Dispose();
-			adapter.Dispose();
+				command.Dispose();
+				adapter.Dispose();
 
-			connection.Close();
-			return ErrorStatus.Success;
+				connection.Close();
+				return ErrorStatus.Success;
+
+			}
+			catch (MySqlException e)
+			{
+				Console.WriteLine("Exception: " + e + "   Message: " + e.Message + "   Stacktrace: " + e.StackTrace);
+
+				command.Dispose();
+				adapter.Dispose();
+
+				connection.Close();
+				throw new ConnectionException(e.Message, connection);
+			}
+
+
+			
 		}
 
 		public ErrorStatus RemoveRecommendation(string User_ID)
