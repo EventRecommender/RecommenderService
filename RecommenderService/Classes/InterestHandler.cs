@@ -59,7 +59,6 @@ namespace RecommenderService.Classes
 			dataReader.Close();
 			command.Dispose();
 
-
 			connection.Close();
 			return new Tuple<ErrorStatus, Dictionary<string, double>>(ErrorStatus.Success, dict);
 		}

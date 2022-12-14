@@ -44,10 +44,12 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 	catch (ConnectionException e)
 	{
 		MySqlConnection.ClearPool(e.con);
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled Exception occured with MySql - UserID: " + userid);
 	}
-	catch (Exception e)
+	catch (Exception)
 	{
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled exception occured - UserID: " + userid);
 	}
 });
@@ -87,10 +89,12 @@ app.MapGet("/GetRecommendation", (string userid) =>
 	catch (ConnectionException e)
 	{
 		MySqlConnection.ClearPool(e.con);
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled Exception occured with MySql - UserID: " + userid);
 	}
 	catch (Exception ex)
 	{
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
@@ -121,6 +125,7 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 	}
 	catch (Exception ex)
 	{
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
@@ -152,6 +157,7 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 	}
 	catch (Exception ex)
 	{
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
@@ -184,6 +190,7 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 	}
 	catch (Exception ex)
 	{
+		Console.WriteLine("Exception: " + e.Message);
 		return Results.Problem("Unhandled exception occured " + "     exType: " + ex.GetType() + "     Message: " + ex.Message + "     StackTrace: " + ex.StackTrace);
 	}
 });
