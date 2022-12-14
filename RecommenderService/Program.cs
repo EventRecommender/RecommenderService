@@ -29,7 +29,8 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
 		{
-			return Results.Problem("User already exist - UserID: " + userid);
+			Console.WriteLine("User already exist - UserID: " + userid);
+			return Results.BadRequest("User already exist - UserID: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
 		{
