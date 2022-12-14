@@ -3,7 +3,7 @@ using RecommenderService.Exceptions;
 using MySql.Data.MySqlClient;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +38,7 @@ app.MapPost("/CalculateRecommendation", (string userid) =>
 		else
 		{
 			//Unhandled Result
+			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - UserID: " + userid + "  result: " + result);
 		}
 	}
@@ -66,6 +67,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.UserNotFound)
 		{
+			Console.WriteLine("User not found - Userid: " + userid);
 			return Results.BadRequest("User not found - Userid: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.QueryStringEmpty)
@@ -74,6 +76,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		}
 		else if (result.Item1 == ErrorStatus.DataOutdated)
 		{
+			Console.WriteLine("Recommendation out of date for User: " + userid);
 			return Results.BadRequest("Recommendation out of date for User: " + userid);
 		}
 		else if (result.Item1 == ErrorStatus.resultEmpty)
@@ -83,6 +86,7 @@ app.MapGet("/GetRecommendation", (string userid) =>
 		else
 		{
 			//Unhandled Result
+			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - UserID: " + userid + "   result: " + result);
 		}
 	}
@@ -120,6 +124,7 @@ app.MapPost("/RemoveUserInterests", (string userid) =>
 		else
 		{
 			//Unhandled Result
+			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - Userid: " + userid + "   result: " + result);
 		}
 	}
@@ -143,6 +148,7 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 		}
 		else if (result == ErrorStatus.UserAlreadyExist)
 		{
+			Console.WriteLine("User already exist - UserID: " + userid);
 			return Results.BadRequest("User already exist - UserID: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
@@ -151,6 +157,7 @@ app.MapPost("/CreateUserInterests", (string userid, string initial_types) =>
 		}
 		else
 		{
+			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
 			//Unhandled Result
 			return Results.BadRequest("Unhandled result - UserID: " + userid + "   result: " + result);
 		}
@@ -176,6 +183,7 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 		}
 		else if (result == ErrorStatus.UserNotFound)
 		{
+			Console.WriteLine("User does not exist - Userid: " + userid);
 			return Results.BadRequest("User does not exist - Userid: " + userid);
 		}
 		else if (result == ErrorStatus.QueryStringEmpty)
@@ -185,6 +193,7 @@ app.MapPost("/UpdateUserInterests", (string userid, string activity_types, Updat
 		else
 		{
 			//Unhandled Result
+			Console.WriteLine("Unhandled result - UserID: " + userid + "   result: " + result);
 			return Results.BadRequest("Unhandled result - Userid: " + userid);
 		}
 	}
