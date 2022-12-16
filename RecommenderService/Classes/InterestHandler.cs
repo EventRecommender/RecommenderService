@@ -210,6 +210,7 @@ namespace RecommenderService.Classes
 			int val1 = 10;
 			int val2 = 40; // used to stop outliers.
 			int countNumber = 3; //amount of tags which other users have to have within the limit
+			int limit = 300; //Limit the amount of similar users
 
 			//Create SQL list of the initial_types
 			StringBuilder sb = new StringBuilder("");
@@ -243,7 +244,8 @@ namespace RecommenderService.Classes
 											$") " +
 										$"GROUP BY userid" +
 										$") AS temp " +
-									$"WHERE count >= {countNumber}"; // "count" is the number of types which are the same as those in initial_types.
+									$"WHERE count >= {countNumber} " + // "count" is the number of types which are the same as those in initial_types.
+									$"LIMIT {limit}";
 
 
 			MySqlCommand command = new MySqlCommand(SQLstatement, connection);
