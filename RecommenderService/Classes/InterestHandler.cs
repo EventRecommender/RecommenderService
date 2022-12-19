@@ -163,6 +163,7 @@ namespace RecommenderService.Classes
 			}
 			Dictionary<string, double> dictCopy = dict;
 
+			/*
 			while (dataReader.Read())
 			{
 				if (dict.ContainsKey((string)dataReader[1]) == false)
@@ -177,7 +178,29 @@ namespace RecommenderService.Classes
 					dict[(string)dataReader[1]] = ((currentVal + (double)dataReader[2]) / 2);
 				}
 			}
-			
+			*/
+
+			while (dataReader.Read())
+			{
+				if (dict.ContainsKey((string)dataReader[1]) == false)
+				{
+					dict[(string)dataReader[1]] = (double)dataReader[2];
+				}
+				else
+				{
+					double currentVal = dict[(string)dataReader[1]];
+
+					//current val				=		(current val				+		new val)		/	2	
+					dict[(string)dataReader[1]] = (currentVal + (double)dataReader[2]);
+				}
+			}
+
+			foreach (var kvp in dict)
+			{
+				dict[kvp.Key] = dict[kvp.Key] / similarUsers.Count() + 1;
+
+			}
+
 
 
 			// duct tape solution to somthing that could be done better.
@@ -206,9 +229,11 @@ namespace RecommenderService.Classes
 			MySqlConnection connection = new(connectionString);
 			connection.Open();
 
+			int similarValMin = (int)Math.Round((100 / initial_types.Count) * 0.90); // 90% of the value
+			int similarValMax = (int)Math.Round((100 / initial_types.Count) * 1.10); // 110% of the value
 
-			int val1 = 10;
-			int val2 = 40; // used to stop outliers.
+			int val1 = similarValMin;
+			int val2 = similarValMax;
 			int countNumber = 3; //amount of tags which other users have to have within the limit
 			int limit = 300; //Limit the amount of similar users
 
