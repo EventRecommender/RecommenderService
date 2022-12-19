@@ -197,7 +197,7 @@ namespace RecommenderService.Classes
 
 			foreach (var kvp in dict)
 			{
-				dict[kvp.Key] = dict[kvp.Key] / similarUsers.Count() + 1;
+				dict[kvp.Key] = dict[kvp.Key] / similarUsers.Count();
 
 			}
 
