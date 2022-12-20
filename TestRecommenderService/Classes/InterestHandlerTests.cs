@@ -89,22 +89,19 @@ namespace RecommenderService.Classes.Tests
 			NewUser_InitialTypes.Add("test4");
 			ih.CreateUserInterests(NewUser_ID, NewUser_InitialTypes);
 
-			//i cheated and used the system to calculate this. this means that any error would npot be caught
-			//('4', 'test1', '16.05'),('4', 'test2', '22.22'),('4', 'test3', '20.99'),('4', 'test4', '20.99'),('4', 'test5', '9.88'),('4', 'test6', '9.88');
 			Dictionary<string, double> expectedResult = new();
-			expectedResult.Add("test1", 16.05);
-			expectedResult.Add("test2", 22.22);
-			expectedResult.Add("test3", 20.99);
-			expectedResult.Add("test4", 20.99);
-			expectedResult.Add("test5", 9.88);
-			expectedResult.Add("test6", 9.88);
+			expectedResult.Add("test1", 20.47);
+			expectedResult.Add("test2", 16.67);
+			expectedResult.Add("test3", 20.47);
+			expectedResult.Add("test4", 23.88);
+			expectedResult.Add("test5", 9.26);
+			expectedResult.Add("test6", 9.26);
 
 			//Act
 			Tuple<ErrorStatus, Dictionary<string, double>> tuple = ih.GetUserInterests(NewUser_ID);
 
-
-			//Assert
-			CollectionAssert.AreEqual(expectedResult, tuple.Item2);
+            //Assert
+            CollectionAssert.AreEqual(expectedResult, tuple.Item2);
 
 		}
 
@@ -126,12 +123,6 @@ namespace RecommenderService.Classes.Tests
 			Assert.AreEqual( ErrorStatus.UserNotFound, tuple.Item1);
 		}
 
-
-		[TestMethod()]
-		public void GetSimilarInterestsTest()
-		{
-			Assert.Fail();
-		}
 
 		[TestMethod()]
 		public void GetSimilarUsersTest()
@@ -186,12 +177,6 @@ namespace RecommenderService.Classes.Tests
 
 			//Assert
 			CollectionAssert.AreEqual(expectedResult, result);
-		}
-
-		[TestMethod()]
-		public void UpdateUserInterestsTest()
-		{
-			Assert.Fail();
 		}
 
 		[TestMethod()]
