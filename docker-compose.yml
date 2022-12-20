@@ -1,0 +1,19 @@
+version: '3'
+services:
+  activity-service: 
+    build: ./RecommenderService
+    container_name: recommender-service
+    ports:
+      - 8001:80
+
+  mysql:
+    image: mysql
+    container_name: mysql_recommender
+    environment:
+      MYSQL_ROOT_PASSWORD: duper
+      MYSQL_DATABASE: recommender_db
+    volumes:
+      - ./mysql_db_data:/var/lib/mysql
+      - ./entry:/docker-entrypoint-initdb.d/
+    ports:
+      - 3306:3306

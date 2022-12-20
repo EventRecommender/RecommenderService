@@ -1,0 +1,17 @@
+version: '3'
+services:
+  test:
+    build: ./TestRecommenderService
+    container_name: test_recommender
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql
+    container_name: mysql_recommender
+    environment:
+      MYSQL_ROOT_PASSWORD: duper
+      MYSQL_DATABASE: recommender_db
+    volumes:
+      - ./mysql_db_data:/var/lib/mysql
+      - ./entry:/docker-entrypoint-initdb.d/
